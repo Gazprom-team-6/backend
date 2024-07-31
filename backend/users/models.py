@@ -1,9 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from company.models import Department
-from users.constants import EMPLOYEE_STATUS, JOB_TYPES
-from users.constants import GRADES
+from users.constants import EMPLOYEE_STATUS, JOB_TYPES, GRADES
 from users.validators import (phone_regex, validate_birth_date,
                               validate_hire_date)
 
@@ -71,7 +69,7 @@ class GazpromUser(AbstractUser):
         verbose_name="Навыки"
     )
     employee_departament = models.ForeignKey(
-        Department,
+        to="company.Department",
         verbose_name="Департамент",
         on_delete=models.SET_NULL,
         null=True,
@@ -84,7 +82,7 @@ class GazpromUser(AbstractUser):
         default_related_name = "users"
 
     def __str__(self):
-        return f"{self.employee_fio} / Департамент {self.employee_departament}"
+        return f"{self.employee_fio}"
 
 
 class Skill(models.Model):
