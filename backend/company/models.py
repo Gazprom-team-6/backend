@@ -131,19 +131,21 @@ class Component(models.Model):
         max_length=150,
         verbose_name="Тип"
     )
+    component_link = models.URLField(
+        verbose_name="Ссылка на документацию",
+    )
     component_owner = models.ForeignKey(
         to=User,
         verbose_name="Ответственный за компонент",
+        related_name="owned_components",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
     )
-    component_link = models.URLField(
-        verbose_name="Ссылка на документацию",
-    )
     component_second_owner = models.ForeignKey(
         to=User,
         verbose_name="Заместитель ответственного за компонент",
+        related_name="second_owned_components",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
