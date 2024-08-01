@@ -92,7 +92,6 @@ class GazpromUserTeam(models.Model):
         default_related_name = "gazpromuserteam"
 
 
-
 class Product(models.Model):
     """Модель продукта."""
 
