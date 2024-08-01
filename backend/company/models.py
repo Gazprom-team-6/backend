@@ -99,7 +99,7 @@ class Product(models.Model):
         verbose_name="Название"
     )
     product_manager = models.ForeignKey(
-        User,
+        to=User,
         verbose_name="Менеджер продукта",
         on_delete=models.SET_NULL,
         null=True,
@@ -113,3 +113,46 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
+
+    class Meta:
+        verbose_name = "продукт"
+        verbose_name_plural = "Продукты"
+        default_related_name = "product"
+
+
+class Component(models.Model):
+    """Модель компонента."""
+
+    component_name = models.CharField(
+        max_length=250,
+        verbose_name="Название"
+    )
+    component_type = models.CharField(
+        max_length=150,
+        verbose_name="Тип"
+    )
+    component_owner = models.ForeignKey(
+        to=User,
+        verbose_name="Ответственный за компонент",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    component_link = models.URLField(
+        verbose_name="Ссылка на документацию",
+    )
+    component_second_owner = models.ForeignKey(
+        to=User,
+        verbose_name="Заместитель ответственного за компонент",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    component_description = models.TextField(
+        verbose_name="Описание"
+    )
+
+    class Meta:
+        verbose_name = "компонент"
+        verbose_name_plural = "Компоненты"
+        default_related_name = "component"
