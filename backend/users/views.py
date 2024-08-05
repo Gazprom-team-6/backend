@@ -2,8 +2,10 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiExample
-from rest_framework import status, viewsets
+from drf_spectacular.utils import (extend_schema, extend_schema_view,
+                                   OpenApiExample, OpenApiResponse,
+                                   PolymorphicProxySerializer)
+from rest_framework import parsers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -11,16 +13,15 @@ from rest_framework.views import APIView
 
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
 from users.serializers import (AvatarUploadSerializer, PasswordResetSerializer,
-                               ProfileListSerializer,
+                               ProfileGetSerializer, ProfileListSerializer,
                                ProfilePatchUserSerializer,
-                               ProfileGetSerializer,
                                ProfileWriteSuperuserSerializer)
 
 User = get_user_model()
 
 
 @extend_schema(
-    tags=['usersauth'],
+    tags=["usersauth"],
     request=PasswordResetSerializer,
     responses={
         200: OpenApiTypes.OBJECT,
@@ -32,13 +33,13 @@ User = get_user_model()
                 "указанный email.",
     examples=[
         OpenApiExample(
-            name='Success Response',
+            name="Success Response",
             value={"message": "Новый пароль отправлен на email"},
             response_only=True,
             status_codes=["200"],
         ),
         OpenApiExample(
-            name='Bad Request Response',
+            name="Bad Request Response",
             value={"email": ["Это поле является обязательным"]},
             response_only=True,
             status_codes=["400"],
@@ -53,7 +54,7 @@ class PasswordResetView(APIView):
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
         if serializer.is_valid():
-            email = serializer.validated_data['email']
+            email = serializer.validated_data["email"]
             user = User.objects.get(email=email)
 
             # Генерация нового пароля
@@ -63,9 +64,9 @@ class PasswordResetView(APIView):
 
             # Отправка нового пароля по email
             send_mail(
-                'Восстановление пароля',
-                f'Ваш новый пароль: {new_password}',
-                'no-reply@yourdomain.com',
+                "Восстановление пароля",
+                f"Ваш новый пароль: {new_password}",
+                "no-reply@yourdomain.com",
                 [email],
                 fail_silently=False,
             )
@@ -77,22 +78,56 @@ class PasswordResetView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    list=extend_schema(description="Получение списка сотрудников"),
+    retrieve=extend_schema(description="Получение информации о сотруднике"),
+    create=extend_schema(description="Добавление нового сотрудника"),
+    destroy=extend_schema(
+        description="Увольнение сотрудника. Статус сотрудника меняется на "
+                    "'Уволен'"
+    ),
+    partial_update=extend_schema(
+        responses=PolymorphicProxySerializer(
+            component_name='IsSuperuser',
+            serializers=[
+                ProfileWriteSuperuserSerializer, ProfilePatchUserSerializer,
+            ],
+            resource_type_field_name='is_superuser',
+        ),
+        request=PolymorphicProxySerializer(
+            component_name='IsSuperuser',
+            serializers=[
+                ProfileWriteSuperuserSerializer, ProfilePatchUserSerializer,
+            ],
+            resource_type_field_name='is_superuser',
+        ),
+        description="Изменение информации о сотруднике"
+    ),
+
+)
+@extend_schema(tags=["users"])
 class UserViewSet(viewsets.ModelViewSet):
     """Представление для пользователей (сотрудников)."""
 
     queryset = User.objects.all()
-    http_method_names = ("get", "post", "patch")
+    http_method_names = ("get", "post", "patch", "delete")
 
     def get_permissions(self):
-        if self.action == "create":
+        # Доступ к созданию и удалению пользователя
+        # разрешаем только суперпользователю
+        if self.action in ("create", "destroy"):
             return (IsSuperuser(),)
-        elif self.action in ("partial_update", "upload_avatar"):
+        # Доступ к редактированию профиля, загрузке и удалению аватара
+        # разрешаем только суперпользователю и владельцу профиля
+        elif self.action in (
+                "partial_update", "upload_avatar", "delete_avatar"
+        ):
             return (IsSuperuserOrProfileOwner(),)
         else:
-            return IsAuthenticated
+            return (IsAuthenticated(),)
 
     def get_serializer_class(self):
-        if self.action == "retrieve":
+        if self.action in ("retrieve", "me"):
             return ProfileGetSerializer
         elif self.action == "create":
             return ProfileWriteSuperuserSerializer
@@ -105,17 +140,30 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return ProfileListSerializer
 
-    @action(["get", "patch"], detail=False)
+    @extend_schema(
+        responses={200: ProfileGetSerializer},
+        description="Просмотр информации о пользователей."
+    )
+    @action(["get"], detail=False)
     def me(self, request, *args, **kwargs):
-        # self.get_object = self.get_instance
-        if request.method == "GET":
-            return self.retrieve(request, *args, **kwargs)
-        else:
-            return self.partial_update(request, *args, **kwargs)
+        serializer = self.get_serializer(self.request.user)
+        return Response(serializer.data)
 
-    @action(detail=True, methods=["patch"], url_path="upload-avatar")
+    @extend_schema(
+        request=AvatarUploadSerializer,
+        responses={200: AvatarUploadSerializer},
+        description="Загрузка аватара сотрудника. "
+                    "Файл должен быть  формата formdata",
+    )
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="upload-avatar",
+        parser_classes=[parsers.MultiPartParser]
+    )
     def upload_avatar(self, request, pk=None):
-        user = request.user
+        """Добавление аватара пользователя."""
+        user = self.get_object()
         serializer = self.get_serializer(
             user,
             data=request.data,
@@ -126,5 +174,21 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        responses={204: OpenApiResponse(
+                description="Аватар успешно удален",
+            ),
+        },
+        description="Удаление аватара сотрудника."
+    )
+    @action(detail=True, methods=["delete"], url_path="delete-avatar")
+    def delete_avatar(self, request, pk=None):
+        """Удаление аватара сотрудника."""
+        user = self.get_object()
+        user.employee_avatar.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+    def perform_destroy(self, instance):
+        """Вместо удаления изменяем сотруднику статус на 'уволен'"""
+        instance.employee_status = "fired"
+        instance.save()

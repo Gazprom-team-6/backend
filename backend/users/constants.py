@@ -1,8 +1,7 @@
 JOB_TYPES = [
     ("full_time", "полная занятость"),
     ("part_time", "частичная занятость"),
-    ("full_time", "полная занятость"),
-    ("full_time", "полная занятость")
+    ("internship", "стажировка"),
 ]
 
 EMPLOYEE_STATUS = [

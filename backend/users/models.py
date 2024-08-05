@@ -40,6 +40,7 @@ class GazpromUser(AbstractUser):
     )
     employee_avatar = models.ImageField(
         verbose_name="Аватар",
+        upload_to='avatars/',
         null=True,
         blank=True
     )
@@ -99,7 +100,8 @@ class GazpromUser(AbstractUser):
 
     skills = models.ManyToManyField(
         to="Skill",
-        verbose_name="Навыки"
+        verbose_name="Навыки",
+        blank=True
     )
     employee_departament = models.ForeignKey(
         to="company.Department",
@@ -108,6 +110,8 @@ class GazpromUser(AbstractUser):
         null=True,
         blank=True
     )
+    username = None
+
 
     class Meta:
         verbose_name = "пользователь"

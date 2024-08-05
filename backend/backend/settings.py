@@ -153,6 +153,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DATE_FORMAT': '%d-%m-%Y',
+    'DATE_INPUT_FORMATS': ['%d-%m-%Y'],
 }
 
 SIMPLE_JWT = {
@@ -166,7 +168,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API для Gazprom company structure',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 # Настройки email
