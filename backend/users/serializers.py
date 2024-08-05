@@ -33,7 +33,7 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ["name"]
 
 
-class ProfileGetSerializer(serializers.ModelSerializer):
+class EmployeeGetSerializer(serializers.ModelSerializer):
     """Сериализатор для получения профиля пользователя."""
 
     skills = serializers.StringRelatedField(many=True)
@@ -48,7 +48,7 @@ class ProfileGetSerializer(serializers.ModelSerializer):
                   "is_employee_outsource", "skills", "employee_departament"]
 
 
-class ProfileWriteSuperuserSerializer(serializers.ModelSerializer):
+class EmployeeWriteSuperuserSerializer(serializers.ModelSerializer):
     """
     Сериализатор для создания и изменения
     профиля сотрудника суперпользователем.
@@ -97,12 +97,12 @@ class ProfileWriteSuperuserSerializer(serializers.ModelSerializer):
         validated_data["password"] = make_password(
             validated_data.get("password")
         )
-        return super(ProfileWriteSuperuserSerializer, self).create(
+        return super(EmployeeWriteSuperuserSerializer, self).create(
             validated_data
         )
 
 
-class ProfilePatchUserSerializer(serializers.ModelSerializer):
+class EmployeePatchUserSerializer(serializers.ModelSerializer):
     """
     Сериализатор для изменения
     профиля сотрудника самим сотрудником.
@@ -123,7 +123,7 @@ class ProfilePatchUserSerializer(serializers.ModelSerializer):
                   "employee_description", "is_superuser"]
 
 
-class ProfileListSerializer(serializers.ModelSerializer):
+class EmployeeListSerializer(serializers.ModelSerializer):
     """Сериализатор для получения списка сотрудников."""
 
     id = serializers.ReadOnlyField()
@@ -135,7 +135,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
                   "employee_telephone", "email", "employee_type_job"]
 
 
-class ProfileShortGetSerializer(serializers.ModelSerializer):
+class EmployeeShortGetSerializer(serializers.ModelSerializer):
     """
     Сериализатор для получения укороченного списка данных профиля
     сотрудника.
@@ -161,3 +161,4 @@ class AvatarUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["employee_avatar"]
+

@@ -13,9 +13,9 @@ from rest_framework.views import APIView
 
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
 from users.serializers import (AvatarUploadSerializer, PasswordResetSerializer,
-                               ProfileGetSerializer, ProfileListSerializer,
-                               ProfilePatchUserSerializer,
-                               ProfileWriteSuperuserSerializer)
+                               EmployeeGetSerializer, EmployeeListSerializer,
+                               EmployeePatchUserSerializer,
+                               EmployeeWriteSuperuserSerializer)
 
 User = get_user_model()
 
@@ -90,14 +90,14 @@ class PasswordResetView(APIView):
         responses=PolymorphicProxySerializer(
             component_name='IsSuperuser',
             serializers=[
-                ProfileWriteSuperuserSerializer, ProfilePatchUserSerializer,
+                EmployeeWriteSuperuserSerializer, EmployeePatchUserSerializer,
             ],
             resource_type_field_name='is_superuser',
         ),
         request=PolymorphicProxySerializer(
             component_name='IsSuperuser',
             serializers=[
-                ProfileWriteSuperuserSerializer, ProfilePatchUserSerializer,
+                EmployeeWriteSuperuserSerializer, EmployeePatchUserSerializer,
             ],
             resource_type_field_name='is_superuser',
         ),
@@ -128,20 +128,20 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ("retrieve", "me"):
-            return ProfileGetSerializer
+            return EmployeeGetSerializer
         elif self.action == "create":
-            return ProfileWriteSuperuserSerializer
+            return EmployeeWriteSuperuserSerializer
         elif self.action == "partial_update":
             if self.request.user.is_superuser:
-                return ProfileWriteSuperuserSerializer
-            return ProfilePatchUserSerializer
+                return EmployeeWriteSuperuserSerializer
+            return EmployeePatchUserSerializer
         elif self.action == "upload_avatar":
             return AvatarUploadSerializer
         else:
-            return ProfileListSerializer
+            return EmployeeListSerializer
 
     @extend_schema(
-        responses={200: ProfileGetSerializer},
+        responses={200: EmployeeGetSerializer},
         description="Просмотр информации о пользователей."
     )
     @action(["get"], detail=False)
