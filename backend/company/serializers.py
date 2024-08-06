@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from company.models import Department, Product
+from company.models import Department, Product, Team
 from users.serializers import EmployeeShortGetSerializer
 
 User = get_user_model()
@@ -59,8 +59,8 @@ class DepartmentChildrenReadSerializer(DepartmentBaseSerializer):
                   "departament_description"]
 
 
-class DepartmentAddEmployeesSerializer(serializers.Serializer):
-    """Сериализатор для добавления сотрудников в департамент."""
+class AddEmployeesBaseSerializer(serializers.Serializer):
+    """Базовый сериализатор для добавления сотрудников."""
 
     employee_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
@@ -75,12 +75,18 @@ class DepartmentAddEmployeesSerializer(serializers.Serializer):
             )
         )
         provided_ids = set(value)
+        # Получаем id сотрудников, которых не существует в БД
         missing_ids = provided_ids - existing_ids
         if missing_ids:
             raise serializers.ValidationError(
                 f"Следующие сотрудники не существуют: {list(missing_ids)}"
             )
-        return value
+        # Возвращаем список id без дубликатов
+        return list(provided_ids)
+
+
+class DepartmentAddEmployeesSerializer(AddEmployeesBaseSerializer):
+    """Сериализатор для добавления сотрудников в департамент."""
 
 
 class EmployeeListResponseSerializer(serializers.Serializer):
@@ -123,12 +129,12 @@ class ProductWriteSerializer(ProductBaseSerializer):
 class ProductReadSerializer(ProductBaseSerializer):
     """Сериализатор для получения информации о продукте."""
 
+    product_manager = EmployeeShortGetSerializer()
+    parent_product = ProductBaseSerializer()
+
     class Meta:
         model = Product
         fields = "__all__"
-
-    product_manager = EmployeeShortGetSerializer()
-    parent_product = ProductBaseSerializer()
 
 
 class ProductChildrenReadSerializer(ProductBaseSerializer):
@@ -140,6 +146,77 @@ class ProductChildrenReadSerializer(ProductBaseSerializer):
         model = Product
         fields = ["id", "product_name", "product_manager",
                   "product_description"]
+
+
+class TeamBaseSerializer(serializers.ModelSerializer):
+    """Базовый сериализатор для команд."""
+
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Team
+        fields = "__all__"
+
+
+class TeamWriteSerializer(TeamBaseSerializer):
+    """Сериализатор для добавления и изменения команд."""
+
+    class Meta:
+        model = Team
+        fields = "__all__"
+
+
+class TeamListSerializer(TeamBaseSerializer):
+    """Сериализатор для получения списка команд."""
+
+    product = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Team
+        fields = "__all__"
+
+
+class TeamGetSerializer(TeamBaseSerializer):
+    """Сериализатор для получения информации о команде."""
+
+    team_manager = EmployeeShortGetSerializer()
+    product = ProductBaseSerializer()
+
+    class Meta:
+        model = Team
+        fields = "__all__"
+
+
+class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
+    """Сериализатор для добавления сотрудников в команду."""
+
+    role = serializers.CharField(max_length=100, min_length=3)
+
+    def validate(self, attrs):
+        """
+        Проверяем, добавлены ли переданные сотрудники уже в команду,
+        и убираем уже добавленных сотрудников из данных.
+        """
+        employee_ids = attrs['employee_ids']
+        team = self.context['team']
+
+        # Получаем список id сотрудников, которые уже есть в команде
+        already_in_team = GazpromUserTeam.objects.filter(
+            employee_id__in=employee_ids,
+            team=team
+        ).values_list('employee_id', flat=True)
+
+        # Если такие сотрудники есть, убираем их из списка для добавления
+        if already_in_team:
+            attrs['employee_ids'] = list(
+                set(employee_ids) - set(already_in_team)
+                )
+
+        return attrs
+
+
+class TeamDeleteEmployeesSerializer(AddEmployeesBaseSerializer):
+    """Сериализатор для удаления сотрудников из команды."""
 
 
 

@@ -17,6 +17,11 @@ router_v1.register(
     views.ProductViewSet,
     basename="product"
 )
+router_v1.register(
+    "team",
+    views.TeamViewSet,
+    basename="team"
+)
 
 urlpatterns = [
     path("", include(router_v1.urls)),

@@ -29,6 +29,7 @@ class Department(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name='children_departament'
     )
 
     class Meta:
@@ -134,6 +135,7 @@ class Product(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+        related_name='children_product'
     )
 
     class Meta:
@@ -151,6 +153,9 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.product_name
 
 
 class Component(models.Model):

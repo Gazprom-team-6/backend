@@ -5,7 +5,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from company.models import Department, Product
+from company.models import Department, GazpromUserTeam, Product, Team
 from company.permissions import IsSuperuserOrReadOnly
 from company.serializers import (DepartmentAddEmployeesSerializer,
                                  DepartmentChildrenReadSerializer,
@@ -14,7 +14,12 @@ from company.serializers import (DepartmentAddEmployeesSerializer,
                                  EmployeeListResponseSerializer,
                                  ProductChildrenReadSerializer,
                                  ProductReadSerializer,
-                                 ProductWriteSerializer)
+                                 ProductWriteSerializer,
+                                 TeamAddEmployeesSerializer,
+                                 TeamDeleteEmployeesSerializer,
+                                 TeamGetSerializer,
+                                 TeamListSerializer,
+                                 TeamWriteSerializer)
 
 User = get_user_model()
 
@@ -84,15 +89,15 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         description="Добавление и удаление сотрудников из департамента.",
         summary="Добавление и удаление сотрудников из департамента."
     )
-    @action(["post", "delete"], detail=True, url_path='employees')
+    @action(["post", "delete"], detail=True, url_path="employees")
     def employees(self, request, pk=None):
         """Добавление и удаление сотрудников из департамента."""
         department = self.get_object()
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            employee_ids = serializer.validated_data['employee_ids']
+            employee_ids = serializer.validated_data["employee_ids"]
             employees = User.objects.filter(id__in=employee_ids)
-            if request.method == 'POST':
+            if request.method == "POST":
                 employees.update(employee_departament=department)
                 return Response(
                     serializer.data,
@@ -116,7 +121,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         description="Получение списка дочерних департаментов.",
         summary="Получение списка дочерних департаментов."
     )
-    @action(["get"], detail=True, url_path='subsidiary')
+    @action(["get"], detail=True, url_path="subsidiary")
     def children_departments(self, request, pk=None):
         """Получение списка дочерних департаментов."""
         parent_department = self.get_object()
@@ -136,7 +141,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         description="Получение списка сотрудников.",
         summary="Получение списка сотрудников."
     )
-    @action(["get"], detail=True, url_path='employees_list')
+    @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников."""
         department = self.get_object()
@@ -144,8 +149,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         total_employees = employees.count()
 
         response_data = {
-            'total_employees': total_employees,
-            'employees': employees
+            "total_employees": total_employees,
+            "employees": employees
         }
 
         serializer = self.get_serializer(response_data)
@@ -162,7 +167,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                     "не имеющих родительских департаментов.",
         summary="Получение списка корневых департаментов."
     )
-    @action(["get"], detail=False, url_path='root_departments')
+    @action(["get"], detail=False, url_path="root_departments")
     def root_departments(self, request, pk=None):
         """Получение списка корневых департаментов."""
         departments = Department.objects.filter(
@@ -230,7 +235,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         description="Получение списка дочерних продуктов.",
         summary="Получение списка дочерних продуктов."
     )
-    @action(["get"], detail=True, url_path='subsidiary')
+    @action(["get"], detail=True, url_path="subsidiary")
     def children_products(self, request, pk=None):
         """Получение списка дочерних продуктов."""
         parent_product = self.get_object()
@@ -251,7 +256,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                     "не имеющих родительских продуктов.",
         summary="Получение списка корневых продуктов."
     )
-    @action(["get"], detail=False, url_path='root_products')
+    @action(["get"], detail=False, url_path="root_products")
     def root_products(self, request, pk=None):
         """Получение списка корневых продуктов."""
         departments = Product.objects.filter(
@@ -260,3 +265,147 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(departments, many=True)
         return Response(serializer.data)
 
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Получение списка команд",
+        summary="Получение списка команд"
+    ),
+    retrieve=extend_schema(
+        description="Получение информации о команде",
+        summary="Получение информации о команде"
+    ),
+    create=extend_schema(
+        description="Добавление новой команды",
+        summary="Добавление новой команды"
+    ),
+    destroy=extend_schema(
+        description="Удаление команды",
+        summary="Удаление команды"
+    ),
+    partial_update=extend_schema(
+        description="Частичное изменение информации о команде",
+        summary="Частичное изменение информации о команде"
+    ),
+    update=extend_schema(
+        description="Изменение информации о команде",
+        summary="Изменение информации о команде"
+    ),
+)
+@extend_schema(tags=["team"])
+class TeamViewSet(viewsets.ModelViewSet):
+    """Представление для команд."""
+
+    permission_classes = [IsSuperuserOrReadOnly, ]
+
+    def get_queryset(self):
+        queryset = Team.objects.all()
+        if self.action in ("retrieve", "list"):
+            queryset = queryset.select_related(
+                "team_manager",
+                "product"
+            )
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action in ("create", "update", "partial_update"):
+            return TeamWriteSerializer
+        elif self.action == "list":
+            return TeamListSerializer
+        elif self.action == "retrieve":
+            return TeamGetSerializer
+        elif self.action == "employees_list":
+            return EmployeeListResponseSerializer
+        elif self.action == "add_employees":
+            return TeamAddEmployeesSerializer
+        elif self.action == "remove_employees":
+            return TeamDeleteEmployeesSerializer
+        return TeamListSerializer
+
+    @extend_schema(
+        responses={
+            200: EmployeeListResponseSerializer(),
+            404: OpenApiResponse(
+                description="No Team matches the given query.",
+            )
+        },
+        description="Получение списка сотрудников.",
+        summary="Получение списка сотрудников."
+    )
+    @action(["get"], detail=True, url_path="employees_list")
+    def employees_list(self, request, pk=None):
+        """Получение списка сотрудников команды."""
+        team = self.get_object()
+        employees = User.objects.filter(gazpromuserteam__team=team)
+        total_employees = employees.count()
+
+        response_data = {
+            "total_employees": total_employees,
+            "employees": employees
+        }
+
+        serializer = self.get_serializer(response_data)
+        return Response(serializer.data)
+
+    @extend_schema(
+        request=TeamAddEmployeesSerializer,
+        responses={
+            200: TeamAddEmployeesSerializer,
+            400: OpenApiResponse(
+                description="Invalid data",
+            )
+        },
+        description="Добавление сотрудников в команду.",
+        summary="Добавление сотрудников в команду."
+    )
+    @action(["post"], detail=True, url_path="add_employees")
+    def add_employees(self, request, pk=None):
+        """Добавление сотрудников в команду."""
+        team = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            employee_ids = serializer.validated_data["employee_ids"]
+            role = serializer.validated_data["role"]
+            GazpromUserTeam.objects.bulk_create(
+                [
+                    GazpromUserTeam(
+                        employee_id=employee_id,
+                        team=team,
+                        role=role,
+                    )
+                    for employee_id in employee_ids
+                ]
+            )
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        request=TeamDeleteEmployeesSerializer,
+        responses={
+            204: TeamDeleteEmployeesSerializer,
+            400: OpenApiResponse(
+                description="Invalid data",
+            )
+        },
+        description="Удаление сотрудников из команды.",
+        summary="Удаление сотрудников из команды."
+    )
+    @action(["delete"], detail=True, url_path="remove_employees")
+    def remove_employees(self, request, pk=None):
+        """Удаление сотрудников из команды."""
+        team = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            employee_ids = serializer.validated_data["employee_ids"]
+            GazpromUserTeam.objects.filter(
+                team=team,
+                employee_id__in=employee_ids
+            ).delete()
+            return Response(
+                serializer.data,
+                status=status.HTTP_204_NO_CONTENT
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
