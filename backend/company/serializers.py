@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from company.models import Department
+from company.models import Department, Product
 from users.serializers import EmployeeShortGetSerializer
 
 User = get_user_model()
@@ -19,16 +19,6 @@ class DepartmentBaseSerializer(serializers.ModelSerializer):
 
 class DepartmentWriteSerializer(DepartmentBaseSerializer):
     """Сериализатор для создания и изменения департаментов."""
-
-    departament_owner = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        allow_null=True
-    )
-    parent_department = serializers.PrimaryKeyRelatedField(
-        queryset=Department.objects.all(),
-        required=False,
-        allow_null=True
-    )
 
     class Meta:
         model = Department
@@ -98,3 +88,58 @@ class EmployeeListResponseSerializer(serializers.Serializer):
 
     total_employees = serializers.IntegerField()
     employees = EmployeeShortGetSerializer(many=True)
+
+
+class ProductBaseSerializer(serializers.ModelSerializer):
+    """Базовый сериализатор для продуктов."""
+
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+
+class ProductWriteSerializer(ProductBaseSerializer):
+    """Сериализатор для добавления и изменения продукта."""
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+    def validate_parent_product(self, value):
+        """
+        Проверяем, что родителем продукта не назначен сам продукт.
+        """
+        if self.instance and value == self.instance:
+            raise serializers.ValidationError(
+                "Нельзя назначить родительским "
+                "продуктом сам продукт."
+            )
+        return value
+
+
+
+class ProductReadSerializer(ProductBaseSerializer):
+    """Сериализатор для получения информации о продукте."""
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+    product_manager = EmployeeShortGetSerializer()
+    parent_product = ProductBaseSerializer()
+
+
+class ProductChildrenReadSerializer(ProductBaseSerializer):
+    """Сериализатор для получения дочерних продуктов."""
+
+    product_manager = EmployeeShortGetSerializer()
+
+    class Meta:
+        model = Product
+        fields = ["id", "product_name", "product_manager",
+                  "product_description"]
+
+
+

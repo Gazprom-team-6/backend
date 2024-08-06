@@ -5,27 +5,45 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from company.models import Department
+from company.models import Department, Product
 from company.permissions import IsSuperuserOrReadOnly
 from company.serializers import (DepartmentAddEmployeesSerializer,
                                  DepartmentChildrenReadSerializer,
                                  DepartmentReadSerializer,
                                  DepartmentWriteSerializer,
-                                 EmployeeListResponseSerializer)
-from users.serializers import EmployeeShortGetSerializer
+                                 EmployeeListResponseSerializer,
+                                 ProductChildrenReadSerializer,
+                                 ProductReadSerializer,
+                                 ProductWriteSerializer)
 
 User = get_user_model()
 
 
 @extend_schema_view(
-    list=extend_schema(description="Получение списка департаментов"),
-    retrieve=extend_schema(description="Получение информации о департаменте"),
-    create=extend_schema(description="Добавление нового департамента"),
-    destroy=extend_schema(description="Удаление департамента"),
-    partial_update=extend_schema(
-        description="Частичное изменение информации о департаменте"
+    list=extend_schema(
+        description="Получение списка департаментов",
+        summary="Получение списка департаментов"
     ),
-    update=extend_schema(description="Изменение информации о департаменте"),
+    retrieve=extend_schema(
+        description="Получение информации о департаменте",
+        summary="Получение информации о департаменте"
+    ),
+    create=extend_schema(
+        description="Добавление нового департамента",
+        summary="Добавление нового департамента"
+    ),
+    destroy=extend_schema(
+        description="Удаление департамента",
+        summary="Удаление департамента"
+    ),
+    partial_update=extend_schema(
+        description="Частичное изменение информации о департаменте",
+        summary="Частичное изменение информации о департаменте"
+    ),
+    update=extend_schema(
+        description="Изменение информации о департаменте",
+        summary="Изменение информации о департаменте"
+    ),
 )
 @extend_schema(tags=["department"])
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -45,7 +63,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ("retrieve", "list"):
             return DepartmentReadSerializer
-        elif self.action == "children_departments":
+        elif self.action in ("children_departments", "root_departments"):
             return DepartmentChildrenReadSerializer
         elif self.action == "employees":
             return DepartmentAddEmployeesSerializer
@@ -63,7 +81,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 description="Invalid data",
             )
         },
-        description="Добавление и удаление сотрудников из департамента."
+        description="Добавление и удаление сотрудников из департамента.",
+        summary="Добавление и удаление сотрудников из департамента."
     )
     @action(["post", "delete"], detail=True, url_path='employees')
     def employees(self, request, pk=None):
@@ -89,12 +108,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         responses={
-            200: DepartmentReadSerializer(many=True),
+            200: DepartmentChildrenReadSerializer(many=True),
             404: OpenApiResponse(
                 description="No Department matches the given query.",
             )
         },
-        description="Получение списка дочерних департаментов."
+        description="Получение списка дочерних департаментов.",
+        summary="Получение списка дочерних департаментов."
     )
     @action(["get"], detail=True, url_path='subsidiary')
     def children_departments(self, request, pk=None):
@@ -113,7 +133,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 description="No Department matches the given query.",
             )
         },
-        description="Получение списка сотрудников."
+        description="Получение списка сотрудников.",
+        summary="Получение списка сотрудников."
     )
     @action(["get"], detail=True, url_path='employees_list')
     def employees_list(self, request, pk=None):
@@ -129,3 +150,113 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(response_data)
         return Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: DepartmentChildrenReadSerializer(many=True),
+            404: OpenApiResponse(
+                description="No Department matches the given query.",
+            )
+        },
+        description="Получение списка департаментов, "
+                    "не имеющих родительских департаментов.",
+        summary="Получение списка корневых департаментов."
+    )
+    @action(["get"], detail=False, url_path='root_departments')
+    def root_departments(self, request, pk=None):
+        """Получение списка корневых департаментов."""
+        departments = Department.objects.filter(
+            parent_department=None
+        )
+        serializer = self.get_serializer(departments, many=True)
+        return Response(serializer.data)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Получение списка продуктов",
+        summary="Получение списка продуктов"
+    ),
+    retrieve=extend_schema(
+        description="Получение информации о продукте",
+        summary="Получение информации о продукте"
+    ),
+    create=extend_schema(
+        description="Добавление нового продукта",
+        summary="Добавление нового продукта"
+    ),
+    destroy=extend_schema(
+        description="Удаление продукта",
+        summary="Удаление продукта"
+    ),
+    partial_update=extend_schema(
+        description="Частичное изменение информации о продукте",
+        summary="Частичное изменение информации о продукте"
+    ),
+    update=extend_schema(
+        description="Изменение информации о продукте",
+        summary="Изменение информации о продукте"
+    ),
+)
+@extend_schema(tags=["product"])
+class ProductViewSet(viewsets.ModelViewSet):
+    """Представление для продуктов."""
+
+    permission_classes = [IsSuperuserOrReadOnly, ]
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        if self.action in ("retrieve", "list"):
+            queryset = queryset.select_related(
+                "product_manager",
+                "parent_product"
+            )
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action in ("create", "update", "partial_update"):
+            return ProductWriteSerializer
+        elif self.action == "children_products":
+            return ProductChildrenReadSerializer
+        return ProductReadSerializer
+
+    @extend_schema(
+        responses={
+            200: ProductChildrenReadSerializer(many=True),
+            404: OpenApiResponse(
+                description="No Product matches the given query.",
+            )
+        },
+        description="Получение списка дочерних продуктов.",
+        summary="Получение списка дочерних продуктов."
+    )
+    @action(["get"], detail=True, url_path='subsidiary')
+    def children_products(self, request, pk=None):
+        """Получение списка дочерних продуктов."""
+        parent_product = self.get_object()
+        children = Product.objects.filter(
+            parent_product=parent_product
+        )
+        serializer = self.get_serializer(children, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: ProductChildrenReadSerializer(many=True),
+            404: OpenApiResponse(
+                description="No Product matches the given query.",
+            )
+        },
+        description="Получение списка продуктов, "
+                    "не имеющих родительских продуктов.",
+        summary="Получение списка корневых продуктов."
+    )
+    @action(["get"], detail=False, url_path='root_products')
+    def root_products(self, request, pk=None):
+        """Получение списка корневых продуктов."""
+        departments = Product.objects.filter(
+            parent_product=None
+        )
+        serializer = self.get_serializer(departments, many=True)
+        return Response(serializer.data)
+

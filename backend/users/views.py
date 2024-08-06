@@ -12,10 +12,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
-from users.serializers import (AvatarUploadSerializer, PasswordResetSerializer,
-                               EmployeeGetSerializer, EmployeeListSerializer,
+from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
+                               EmployeeListSerializer,
                                EmployeePatchUserSerializer,
-                               EmployeeWriteSuperuserSerializer)
+                               EmployeeWriteSuperuserSerializer,
+                               PasswordResetSerializer)
 
 User = get_user_model()
 
@@ -31,6 +32,7 @@ User = get_user_model()
                 "пароль, если его email зарегистрирован в системе. "
                 "Система генерирует и присылает новый пароль на "
                 "указанный email.",
+    summary="Восстановление пароля.",
     examples=[
         OpenApiExample(
             name="Success Response",
@@ -79,12 +81,22 @@ class PasswordResetView(APIView):
 
 
 @extend_schema_view(
-    list=extend_schema(description="Получение списка сотрудников"),
-    retrieve=extend_schema(description="Получение информации о сотруднике"),
-    create=extend_schema(description="Добавление нового сотрудника"),
+    list=extend_schema(
+        description="Получение списка сотрудников",
+        summary="Получение списка сотрудников."
+    ),
+    retrieve=extend_schema(
+        description="Получение информации о сотруднике",
+        summary="Получение информации о сотруднике."
+    ),
+    create=extend_schema(
+        description="Добавление нового сотрудника",
+        summary="Добавление нового сотрудника."
+    ),
     destroy=extend_schema(
-        description="Увольнение сотрудника. Статус сотрудника меняется на "
-                    "'Уволен'"
+        description="Увольнение сотрудника. "
+                    "Статус сотрудника меняется на Уволен",
+        summary="Увольнение сотрудника."
     ),
     partial_update=extend_schema(
         responses=PolymorphicProxySerializer(
@@ -101,7 +113,8 @@ class PasswordResetView(APIView):
             ],
             resource_type_field_name='is_superuser',
         ),
-        description="Изменение информации о сотруднике"
+        description="Изменение информации о сотруднике.",
+        summary="Изменение информации о сотруднике."
     ),
 
 )
@@ -142,7 +155,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         responses={200: EmployeeGetSerializer},
-        description="Просмотр информации о пользователей."
+        description="Просмотр информации о пользователей.",
+        summary="Просмотр информации о пользователей."
     )
     @action(["get"], detail=False)
     def me(self, request, *args, **kwargs):
@@ -154,6 +168,7 @@ class UserViewSet(viewsets.ModelViewSet):
         responses={200: AvatarUploadSerializer},
         description="Загрузка аватара сотрудника. "
                     "Файл должен быть  формата formdata",
+        summary="Загрузка аватара сотрудника."
     )
     @action(
         detail=True,
@@ -175,11 +190,13 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        responses={204: OpenApiResponse(
+        responses={
+            204: OpenApiResponse(
                 description="Аватар успешно удален",
             ),
         },
-        description="Удаление аватара сотрудника."
+        description="Удаление аватара сотрудника.",
+        summary="Удаление аватара сотрудника."
     )
     @action(detail=True, methods=["delete"], url_path="delete-avatar")
     def delete_avatar(self, request, pk=None):

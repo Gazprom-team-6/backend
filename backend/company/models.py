@@ -141,7 +141,6 @@ class Product(models.Model):
         verbose_name_plural = "Продукты"
         default_related_name = "product"
 
-
     def clean(self):
         """
         Проверяем, что родителем продукта не назначен сам продукт.
