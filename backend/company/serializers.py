@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from company.models import Department, Product, Team
+from company.models import Department, GazpromUserTeam, Product, Team
 from users.serializers import EmployeeShortGetSerializer
 
 User = get_user_model()
@@ -41,11 +41,13 @@ class DepartmentReadSerializer(DepartmentBaseSerializer):
 
     departament_owner = EmployeeShortGetSerializer()
     parent_department = DepartmentBaseSerializer()
+    employee_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Department
         fields = ["id", "departament_name", "departament_owner",
-                  "departament_description", "parent_department"]
+                  "departament_description", "parent_department",
+                  "employee_count"]
 
 
 class DepartmentChildrenReadSerializer(DepartmentBaseSerializer):
@@ -89,13 +91,6 @@ class DepartmentAddEmployeesSerializer(AddEmployeesBaseSerializer):
     """Сериализатор для добавления сотрудников в департамент."""
 
 
-class EmployeeListResponseSerializer(serializers.Serializer):
-    """Сериализатор для получения списка сотрудников и их общего количества."""
-
-    total_employees = serializers.IntegerField()
-    employees = EmployeeShortGetSerializer(many=True)
-
-
 class ProductBaseSerializer(serializers.ModelSerializer):
     """Базовый сериализатор для продуктов."""
 
@@ -123,7 +118,6 @@ class ProductWriteSerializer(ProductBaseSerializer):
                 "продуктом сам продукт."
             )
         return value
-
 
 
 class ProductReadSerializer(ProductBaseSerializer):
@@ -170,10 +164,12 @@ class TeamListSerializer(TeamBaseSerializer):
     """Сериализатор для получения списка команд."""
 
     product = serializers.StringRelatedField(read_only=True)
+    employee_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Team
-        fields = "__all__"
+        fields = ["id", "team_name", "team_manager", "product",
+                  "employee_count"]
 
 
 class TeamGetSerializer(TeamBaseSerializer):
@@ -181,10 +177,12 @@ class TeamGetSerializer(TeamBaseSerializer):
 
     team_manager = EmployeeShortGetSerializer()
     product = ProductBaseSerializer()
+    employee_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Team
-        fields = "__all__"
+        fields = ["id", "team_name", "team_manager", "product",
+                  "employee_count"]
 
 
 class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
@@ -194,23 +192,27 @@ class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
 
     def validate(self, attrs):
         """
-        Проверяем, добавлены ли переданные сотрудники уже в команду,
-        и убираем уже добавленных сотрудников из данных.
+        Проверяем, есть ли переданные сотрудники уже в команде.
         """
         employee_ids = attrs['employee_ids']
         team = self.context['team']
 
-        # Получаем список id сотрудников, которые уже есть в команде
+        # Получаем список id сотрудников, которые уже есть в команде на тех
+        # же должностях (ролях)
         already_in_team = GazpromUserTeam.objects.filter(
             employee_id__in=employee_ids,
-            team=team
-        ).values_list('employee_id', flat=True)
-
-        # Если такие сотрудники есть, убираем их из списка для добавления
+            team=team,
+        ).select_related("employee").values_list(
+            'employee__employee_fio',
+            flat=True
+        )
+        # Если такие сотрудники есть, то возвращаем ошибку и список ФИО
+        # сотрудников
         if already_in_team:
-            attrs['employee_ids'] = list(
-                set(employee_ids) - set(already_in_team)
-                )
+            raise serializers.ValidationError(
+                f"Следующие сотрудники уже в команде: "
+                f"{', '.join(already_in_team)}"
+            )
 
         return attrs
 
@@ -219,4 +221,11 @@ class TeamDeleteEmployeesSerializer(AddEmployeesBaseSerializer):
     """Сериализатор для удаления сотрудников из команды."""
 
 
+class TeamEmployeeListSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения списка сотрудников команды."""
 
+    employee = EmployeeShortGetSerializer()
+
+    class Meta:
+        model = GazpromUserTeam
+        fields = ["role", "employee"]

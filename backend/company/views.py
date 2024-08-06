@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 from drf_spectacular.utils import (extend_schema, extend_schema_view,
                                    OpenApiResponse)
 from rest_framework import status, viewsets
@@ -11,27 +12,27 @@ from company.serializers import (DepartmentAddEmployeesSerializer,
                                  DepartmentChildrenReadSerializer,
                                  DepartmentReadSerializer,
                                  DepartmentWriteSerializer,
-                                 EmployeeListResponseSerializer,
                                  ProductChildrenReadSerializer,
                                  ProductReadSerializer,
                                  ProductWriteSerializer,
                                  TeamAddEmployeesSerializer,
                                  TeamDeleteEmployeesSerializer,
-                                 TeamGetSerializer,
+                                 TeamEmployeeListSerializer, TeamGetSerializer,
                                  TeamListSerializer,
                                  TeamWriteSerializer)
+from users.serializers import EmployeeShortGetSerializer
 
 User = get_user_model()
 
 
 @extend_schema_view(
     list=extend_schema(
-        description="Получение списка департаментов",
-        summary="Получение списка департаментов"
+        description="Получение списка департаментов и числа сотрудников",
+        summary="Получение списка департаментов и числа сотрудников"
     ),
     retrieve=extend_schema(
-        description="Получение информации о департаменте",
-        summary="Получение информации о департаменте"
+        description="Получение информации о департаменте и числа сотрудников",
+        summary="Получение информации о департаменте и числа сотрудников"
     ),
     create=extend_schema(
         description="Добавление нового департамента",
@@ -57,7 +58,8 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSuperuserOrReadOnly, ]
 
     def get_queryset(self):
-        queryset = Department.objects.all()
+        # Добавляем подсчет числа сотрудников в департаменте
+        queryset = Department.objects.annotate(employee_count=Count('users'))
         if self.action in ("retrieve", "list"):
             queryset = queryset.select_related(
                 "departament_owner",
@@ -73,7 +75,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         elif self.action == "employees":
             return DepartmentAddEmployeesSerializer
         elif self.action == "employees_list":
-            return EmployeeListResponseSerializer
+            return EmployeeShortGetSerializer
         else:
             return DepartmentWriteSerializer
 
@@ -128,12 +130,17 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         children = Department.objects.filter(
             parent_department=parent_department
         )
-        serializer = self.get_serializer(children, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(children)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     @extend_schema(
         responses={
-            200: EmployeeListResponseSerializer(),
+            200: EmployeeShortGetSerializer(many=True),
             404: OpenApiResponse(
                 description="No Department matches the given query.",
             )
@@ -146,15 +153,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         """Получение списка сотрудников."""
         department = self.get_object()
         employees = User.objects.filter(employee_departament=department)
-        total_employees = employees.count()
-
-        response_data = {
-            "total_employees": total_employees,
-            "employees": employees
-        }
-
-        serializer = self.get_serializer(response_data)
-        return Response(serializer.data)
+        page = self.paginate_queryset(employees)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     @extend_schema(
         responses={
@@ -173,8 +178,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         departments = Department.objects.filter(
             parent_department=None
         )
-        serializer = self.get_serializer(departments, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(departments)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 @extend_schema_view(
@@ -242,8 +252,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         children = Product.objects.filter(
             parent_product=parent_product
         )
-        serializer = self.get_serializer(children, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(children)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     @extend_schema(
         responses={
@@ -262,18 +277,23 @@ class ProductViewSet(viewsets.ModelViewSet):
         departments = Product.objects.filter(
             parent_product=None
         )
-        serializer = self.get_serializer(departments, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(departments)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 @extend_schema_view(
     list=extend_schema(
-        description="Получение списка команд",
-        summary="Получение списка команд"
+        description="Получение списка команд и числа сотрудников",
+        summary="Получение списка команд и числа сотрудников"
     ),
     retrieve=extend_schema(
-        description="Получение информации о команде",
-        summary="Получение информации о команде"
+        description="Получение информации о команде и о числе сотрудников",
+        summary="Получение информации о команде и о числе сотрудников"
     ),
     create=extend_schema(
         description="Добавление новой команды",
@@ -299,7 +319,9 @@ class TeamViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSuperuserOrReadOnly, ]
 
     def get_queryset(self):
-        queryset = Team.objects.all()
+        queryset = Team.objects.annotate(
+            employee_count=Count('gazpromuserteam__employee')
+        )
         if self.action in ("retrieve", "list"):
             queryset = queryset.select_related(
                 "team_manager",
@@ -315,7 +337,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         elif self.action == "retrieve":
             return TeamGetSerializer
         elif self.action == "employees_list":
-            return EmployeeListResponseSerializer
+            return TeamEmployeeListSerializer
         elif self.action == "add_employees":
             return TeamAddEmployeesSerializer
         elif self.action == "remove_employees":
@@ -324,7 +346,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         responses={
-            200: EmployeeListResponseSerializer(),
+            200: TeamEmployeeListSerializer(many=True),
             404: OpenApiResponse(
                 description="No Team matches the given query.",
             )
@@ -336,16 +358,16 @@ class TeamViewSet(viewsets.ModelViewSet):
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников команды."""
         team = self.get_object()
-        employees = User.objects.filter(gazpromuserteam__team=team)
-        total_employees = employees.count()
-
-        response_data = {
-            "total_employees": total_employees,
-            "employees": employees
-        }
-
-        serializer = self.get_serializer(response_data)
-        return Response(serializer.data)
+        employees = GazpromUserTeam.objects.filter(team=team).select_related(
+            "employee"
+        )
+        page = self.paginate_queryset(employees)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
     @extend_schema(
         request=TeamAddEmployeesSerializer,
@@ -362,7 +384,10 @@ class TeamViewSet(viewsets.ModelViewSet):
     def add_employees(self, request, pk=None):
         """Добавление сотрудников в команду."""
         team = self.get_object()
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(
+            data=request.data,
+            context={"team": team}
+        )
         if serializer.is_valid():
             employee_ids = serializer.validated_data["employee_ids"]
             role = serializer.validated_data["role"]

@@ -107,8 +107,8 @@ class GazpromUserTeam(models.Model):
         default_related_name = "gazpromuserteam"
         constraints = [
             models.UniqueConstraint(
-                fields=['employee', 'team', 'role'],
-                name='Unique employee role in team'
+                fields=['employee', 'team'],
+                name='Employee can have only 1 role in 1 team'
             )
         ]
 
