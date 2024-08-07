@@ -1,7 +1,10 @@
 from django.contrib import admin
 
-from company.models import (AdditionalField, Component, Department,
-                            GazpromUserTeam, Metric, Product, Team)
+from company.models import AdditionalField, Metric
+from components.models import Component
+from departments.models import Department
+from products.models import Product
+from teams.models import GazpromUserTeam, Team
 
 admin.site.register(Product)
 admin.site.register(Component)

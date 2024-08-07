@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'djoser',
     'drf_spectacular',
     'users.apps.UsersConfig',
-    'company.apps.CompanyConfig'
+    'company.apps.CompanyConfig',
+    'departments.apps.DepartmentsConfig',
+    'products.apps.ProductsConfig',
+    'teams.apps.TeamsConfig',
+    'components.apps.ComponentsConfig',
 ]
 
 MIDDLEWARE = [

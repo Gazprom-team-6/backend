@@ -161,4 +161,3 @@ class AvatarUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["employee_avatar"]
-

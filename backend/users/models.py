@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from users.constants import EMPLOYEE_STATUS, JOB_TYPES, GRADES
+from users.constants import EMPLOYEE_STATUS, GRADES, JOB_TYPES
 from users.manager import GazpromUserManager
 from users.validators import (phone_regex, validate_birth_date,
                               validate_hire_date)
@@ -104,14 +104,13 @@ class GazpromUser(AbstractUser):
         blank=True
     )
     employee_departament = models.ForeignKey(
-        to="company.Department",
+        to="departments.Department",
         verbose_name="Департамент",
         on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
     username = None
-
 
     class Meta:
         verbose_name = "пользователь"

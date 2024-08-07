@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (extend_schema, extend_schema_view,
-                                   OpenApiExample, OpenApiResponse,
-                                   PolymorphicProxySerializer)
+from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
+                                   PolymorphicProxySerializer, extend_schema,
+                                   extend_schema_view)
 from rest_framework import parsers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated

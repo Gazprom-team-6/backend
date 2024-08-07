@@ -1,0 +1,20 @@
+[tool.ruff]
+line-length = 79
+# Исключения длинных строк
+extend-exclude = [
+    "**/settings.py",
+    "**/migrations/",
+    "**/management/",
+    ]
+force-exclude = true
+preview = true
+select = [
+    "E", # pycodestyle error
+    "W", # pycodestyle warning
+    "F", # pyflakes
+    "I", # isort
+    "N", # pep8-naming
+] # all rules here https://docs.astral.sh/ruff/rules/#pep8-naming-n
+fixable = ["F401", "E501", "D400"]
+ignore = ["E203", "I001", "N999", "D400", "E501"]
+fix = true
