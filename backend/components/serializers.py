@@ -24,6 +24,14 @@ class ComponentReadSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ComponentReadShortSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения компонентов с ограниченным числом полей."""
+
+    class Meta:
+        model = Component
+        fields = ["id", "component_name"]
+
+
 class ComponentWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления и изменения компонентов."""
 

@@ -32,9 +32,10 @@ class Product(models.Model):
         blank=True,
         related_name='children_product'
     )
-    component = models.ManyToManyField(
+    components = models.ManyToManyField(
         to=Component,
         verbose_name="Компонент",
+        blank=True
     )
 
     class Meta:

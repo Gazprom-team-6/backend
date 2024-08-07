@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from components.serializers import (ComponentReadSerializer,
+                                    ComponentReadShortSerializer)
 from products.models import Product
 from users.serializers import EmployeeShortGetSerializer
 
@@ -33,11 +35,23 @@ class ProductWriteSerializer(ProductBaseSerializer):
         return value
 
 
-class ProductReadSerializer(ProductBaseSerializer):
+class ProductGetSerializer(ProductBaseSerializer):
     """Сериализатор для получения информации о продукте."""
 
     product_manager = EmployeeShortGetSerializer()
     parent_product = ProductBaseSerializer()
+    components = ComponentReadShortSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+
+class ProductListSerializer(ProductBaseSerializer):
+    """Сериализатор для получения списка продуктов."""
+
+    product_manager = EmployeeShortGetSerializer()
+    components = ComponentReadShortSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product

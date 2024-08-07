@@ -4,9 +4,12 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from company.permissions import IsSuperuserOrReadOnly
+from components.models import Component
+from components.serializers import ComponentReadSerializer
 from products.models import Product
 from products.serializers import (ProductChildrenReadSerializer,
-                                  ProductReadSerializer,
+                                  ProductGetSerializer,
+                                  ProductListSerializer,
                                   ProductWriteSerializer)
 from teams.models import Team
 from teams.serializers import TeamListSerializer
@@ -60,7 +63,12 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductChildrenReadSerializer
         elif self.action == "product_teams":
             return TeamListSerializer
-        return ProductReadSerializer
+        elif self.action == "retrieve":
+            return ProductGetSerializer
+        elif self.action == "product_components":
+            return ComponentReadSerializer
+        else:
+            return ProductListSerializer
 
     @extend_schema(
         responses={
@@ -130,6 +138,29 @@ class ProductViewSet(viewsets.ModelViewSet):
             product=product
         )
         page = self.paginate_queryset(teams)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: ComponentReadSerializer(many=True),
+            404: OpenApiResponse(
+                description="No Product matches the given query.",
+            )
+        },
+        description="Получение списка компонентов продукта.",
+        summary="Получение списка компонентов продукта."
+    )
+    @action(["get"], detail=True, url_path="product_components")
+    def product_components(self, request, pk=None):
+        """Получение списка команд продукта."""
+        product = self.get_object()
+        components = product.components.all()
+        page = self.paginate_queryset(components)
         serializer = self.get_serializer(
             page,
             many=True,

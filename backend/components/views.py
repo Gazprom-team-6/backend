@@ -9,7 +9,7 @@ from components.serializers import (ComponentReadSerializer,
                                     ComponentWriteSerializer)
 from products.models import Product
 from products.serializers import (ProductChildrenReadSerializer,
-                                  ProductReadSerializer,
+                                  ProductGetSerializer,
                                   ProductWriteSerializer)
 from teams.models import Team
 from teams.serializers import TeamListSerializer
