@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Count
 from drf_spectacular.utils import (OpenApiResponse, extend_schema,
                                    extend_schema_view)
@@ -6,13 +7,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from company.permissions import IsSuperuserOrReadOnly
-from company.views import User
 from departments.models import Department
 from departments.serializers import (DepartmentAddEmployeesSerializer,
                                      DepartmentChildrenReadSerializer,
                                      DepartmentReadSerializer,
                                      DepartmentWriteSerializer)
 from users.serializers import EmployeeShortGetSerializer
+
+
+User = get_user_model()
 
 
 # Create your views here.

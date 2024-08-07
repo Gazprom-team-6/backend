@@ -61,8 +61,7 @@ class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
         employee_ids = attrs['employee_ids']
         team = self.context['team']
 
-        # Получаем список id сотрудников, которые уже есть в команде на тех
-        # же должностях (ролях)
+        # Получаем список id сотрудников, которые уже есть в команде
         already_in_team = GazpromUserTeam.objects.filter(
             employee_id__in=employee_ids,
             team=team,

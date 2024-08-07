@@ -53,3 +53,4 @@ class ProductChildrenReadSerializer(ProductBaseSerializer):
         model = Product
         fields = ["id", "product_name", "product_manager",
                   "product_description"]
+

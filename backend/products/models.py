@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from components.models import Component
+
 User = get_user_model()
 
 
@@ -29,6 +31,10 @@ class Product(models.Model):
         null=True,
         blank=True,
         related_name='children_product'
+    )
+    component = models.ManyToManyField(
+        to=Component,
+        verbose_name="Компонент",
     )
 
     class Meta:

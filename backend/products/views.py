@@ -8,6 +8,8 @@ from products.models import Product
 from products.serializers import (ProductChildrenReadSerializer,
                                   ProductReadSerializer,
                                   ProductWriteSerializer)
+from teams.models import Team
+from teams.serializers import TeamListSerializer
 
 
 @extend_schema_view(
@@ -56,6 +58,8 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductWriteSerializer
         elif self.action == "children_products":
             return ProductChildrenReadSerializer
+        elif self.action == "product_teams":
+            return TeamListSerializer
         return ProductReadSerializer
 
     @extend_schema(
@@ -101,6 +105,31 @@ class ProductViewSet(viewsets.ModelViewSet):
             parent_product=None
         )
         page = self.paginate_queryset(departments)
+        serializer = self.get_serializer(
+            page,
+            many=True,
+            context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: TeamListSerializer(many=True),
+            404: OpenApiResponse(
+                description="No Product matches the given query.",
+            )
+        },
+        description="Получение списка команд продукта.",
+        summary="Получение списка команд продукта."
+    )
+    @action(["get"], detail=True, url_path="product_teams")
+    def product_teams(self, request, pk=None):
+        """Получение списка команд продукта."""
+        product = self.get_object()
+        teams = Team.objects.filter(
+            product=product
+        )
+        page = self.paginate_queryset(teams)
         serializer = self.get_serializer(
             page,
             many=True,

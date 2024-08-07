@@ -18,6 +18,8 @@ class Component(models.Model):
     )
     component_link = models.URLField(
         verbose_name="Ссылка на документацию",
+        null=True,
+        blank=True
     )
     component_owner = models.ForeignKey(
         to=User,
