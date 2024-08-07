@@ -1,7 +1,7 @@
 import django_filters
 from django.contrib.auth import get_user_model
 
-from users.constants import GRADES
+from users.constants import GRADES, JOB_TYPES
 from users.models import Skill
 
 User = get_user_model()
@@ -17,6 +17,10 @@ class GazpromUserFilter(django_filters.FilterSet):
     grade = django_filters.ChoiceFilter(
         field_name="employee_grade",
         choices=GRADES,
+    )
+    job_type = django_filters.ChoiceFilter(
+        field_name="employee_type_job",
+        choices=JOB_TYPES,
     )
     skill = django_filters.ModelMultipleChoiceFilter(
         field_name="skills__name",
@@ -38,4 +42,4 @@ class GazpromUserFilter(django_filters.FilterSet):
         model = User
         fields = ["position", "department", "grade", "skill",
                   "is_outsource", "is_outsource", "location", "team",
-                  "product"]
+                  "product", "job_type"]

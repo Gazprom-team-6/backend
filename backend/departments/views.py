@@ -1,13 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (OpenApiResponse, extend_schema,
                                    extend_schema_view)
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from company.permissions import IsSuperuserOrReadOnly
 from departments.models import Department
+from departments.schemas import (CHILDREN_DEPARTMENTS_SCHEMA,
+                                 DEPARTMENT_SCHEMA,
+                                 EMPLOYEES_LIST_SCHEMA, EMPLOYEES_SCHEMA,
+                                 ROOT_DEPARTMENTS_SCHEMA)
 from departments.serializers import (DepartmentAddEmployeesSerializer,
                                      DepartmentChildrenReadSerializer,
                                      DepartmentReadSerializer,
@@ -19,37 +24,14 @@ User = get_user_model()
 
 
 # Create your views here.
-@extend_schema_view(
-    list=extend_schema(
-        description="Получение списка департаментов и числа сотрудников",
-        summary="Получение списка департаментов и числа сотрудников"
-    ),
-    retrieve=extend_schema(
-        description="Получение информации о департаменте и числа сотрудников",
-        summary="Получение информации о департаменте и числа сотрудников"
-    ),
-    create=extend_schema(
-        description="Добавление нового департамента",
-        summary="Добавление нового департамента"
-    ),
-    destroy=extend_schema(
-        description="Удаление департамента",
-        summary="Удаление департамента"
-    ),
-    partial_update=extend_schema(
-        description="Частичное изменение информации о департаменте",
-        summary="Частичное изменение информации о департаменте"
-    ),
-    update=extend_schema(
-        description="Изменение информации о департаменте",
-        summary="Изменение информации о департаменте"
-    ),
-)
+@DEPARTMENT_SCHEMA
 @extend_schema(tags=["department"])
 class DepartmentViewSet(viewsets.ModelViewSet):
     """Представление для департаментов."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("id", "departament_name", "departament_description")
 
     def get_queryset(self):
         # Добавляем подсчет числа сотрудников в департаменте
@@ -73,18 +55,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         else:
             return DepartmentWriteSerializer
 
-    @extend_schema(
-        request=DepartmentAddEmployeesSerializer,
-        responses={
-            200: DepartmentAddEmployeesSerializer,
-            204: DepartmentAddEmployeesSerializer,
-            400: OpenApiResponse(
-                description="Invalid data",
-            )
-        },
-        description="Добавление и удаление сотрудников из департамента.",
-        summary="Добавление и удаление сотрудников из департамента."
-    )
+    @EMPLOYEES_SCHEMA
     @action(["post", "delete"], detail=True, url_path="employees")
     def employees(self, request, pk=None):
         """Добавление и удаление сотрудников из департамента."""
@@ -107,16 +78,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(
-        responses={
-            200: DepartmentChildrenReadSerializer(many=True),
-            404: OpenApiResponse(
-                description="No Department matches the given query.",
-            )
-        },
-        description="Получение списка дочерних департаментов.",
-        summary="Получение списка дочерних департаментов."
-    )
+    @CHILDREN_DEPARTMENTS_SCHEMA
     @action(["get"], detail=True, url_path="subsidiary")
     def children_departments(self, request, pk=None):
         """Получение списка дочерних департаментов."""
@@ -132,16 +94,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @extend_schema(
-        responses={
-            200: EmployeeShortGetSerializer(many=True),
-            404: OpenApiResponse(
-                description="No Department matches the given query.",
-            )
-        },
-        description="Получение списка сотрудников.",
-        summary="Получение списка сотрудников."
-    )
+    @EMPLOYEES_LIST_SCHEMA
     @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников."""
@@ -155,17 +108,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @extend_schema(
-        responses={
-            200: DepartmentChildrenReadSerializer(many=True),
-            404: OpenApiResponse(
-                description="No Department matches the given query.",
-            )
-        },
-        description="Получение списка департаментов, "
-                    "не имеющих родительских департаментов.",
-        summary="Получение списка корневых департаментов."
-    )
+    @ROOT_DEPARTMENTS_SCHEMA
     @action(["get"], detail=False, url_path="root_departments")
     def root_departments(self, request, pk=None):
         """Получение списка корневых департаментов."""

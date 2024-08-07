@@ -14,6 +14,8 @@ from rest_framework.views import APIView
 
 from users.filters import GazpromUserFilter
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
+from users.schemas import (DELETE_AVATAR_SCHEMA, GAZPROMUSER_SCHEMA, ME_SCHEMA,
+                           PASSWORD_RESET_VIEW_SCHEMA, UPLOAD_AVATAR_SCHEMA)
 from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
                                EmployeeListSerializer,
                                EmployeePatchUserSerializer,
@@ -23,33 +25,7 @@ from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
 User = get_user_model()
 
 
-@extend_schema(
-    tags=["usersauth"],
-    request=PasswordResetSerializer,
-    responses={
-        200: OpenApiTypes.OBJECT,
-        400: OpenApiTypes.OBJECT,
-    },
-    description="Позволяет неавторизованному пользователю восстановить "
-                "пароль, если его email зарегистрирован в системе. "
-                "Система генерирует и присылает новый пароль на "
-                "указанный email.",
-    summary="Восстановление пароля.",
-    examples=[
-        OpenApiExample(
-            name="Success Response",
-            value={"message": "Новый пароль отправлен на email"},
-            response_only=True,
-            status_codes=["200"],
-        ),
-        OpenApiExample(
-            name="Bad Request Response",
-            value={"email": ["Это поле является обязательным"]},
-            response_only=True,
-            status_codes=["400"],
-        )
-    ],
-)
+@PASSWORD_RESET_VIEW_SCHEMA
 class PasswordResetView(APIView):
     """Восстановление пароля по email."""
 
@@ -82,44 +58,7 @@ class PasswordResetView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@extend_schema_view(
-    list=extend_schema(
-        description="Получение списка сотрудников",
-        summary="Получение списка сотрудников."
-    ),
-    retrieve=extend_schema(
-        description="Получение информации о сотруднике",
-        summary="Получение информации о сотруднике."
-    ),
-    create=extend_schema(
-        description="Добавление нового сотрудника",
-        summary="Добавление нового сотрудника."
-    ),
-    destroy=extend_schema(
-        description="Увольнение сотрудника. "
-                    "Статус сотрудника меняется на Уволен",
-        summary="Увольнение сотрудника."
-    ),
-    partial_update=extend_schema(
-        responses=PolymorphicProxySerializer(
-            component_name='IsSuperuser',
-            serializers=[
-                EmployeeWriteSuperuserSerializer, EmployeePatchUserSerializer,
-            ],
-            resource_type_field_name='is_superuser',
-        ),
-        request=PolymorphicProxySerializer(
-            component_name='IsSuperuser',
-            serializers=[
-                EmployeeWriteSuperuserSerializer, EmployeePatchUserSerializer,
-            ],
-            resource_type_field_name='is_superuser',
-        ),
-        description="Изменение информации о сотруднике.",
-        summary="Изменение информации о сотруднике."
-    ),
-
-)
+@GAZPROMUSER_SCHEMA
 @extend_schema(tags=["users"])
 class UserViewSet(viewsets.ModelViewSet):
     """Представление для пользователей (сотрудников)."""
@@ -132,7 +71,13 @@ class UserViewSet(viewsets.ModelViewSet):
         "employee_fio",
         "employee_telegram",
         "employee_telephone",
-        "email"
+        "email",
+        "gazpromuserteam__team__product__product_name",
+        "employee_position",
+        "employee_grade",
+        "employee_location",
+        "gazpromuserteam__team__team_name",
+        "skills__name"
     )
     filterset_class = GazpromUserFilter
 
@@ -164,23 +109,13 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return EmployeeListSerializer
 
-    @extend_schema(
-        responses={200: EmployeeGetSerializer},
-        description="Просмотр информации о пользователей.",
-        summary="Просмотр информации о пользователей."
-    )
+    @ME_SCHEMA
     @action(["get"], detail=False)
     def me(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.request.user)
         return Response(serializer.data)
 
-    @extend_schema(
-        request=AvatarUploadSerializer,
-        responses={200: AvatarUploadSerializer},
-        description="Загрузка аватара сотрудника. "
-                    "Файл должен быть  формата formdata",
-        summary="Загрузка аватара сотрудника."
-    )
+    @UPLOAD_AVATAR_SCHEMA
     @action(
         detail=True,
         methods=["patch"],
@@ -200,15 +135,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(
-        responses={
-            204: OpenApiResponse(
-                description="Аватар успешно удален",
-            ),
-        },
-        description="Удаление аватара сотрудника.",
-        summary="Удаление аватара сотрудника."
-    )
+    @DELETE_AVATAR_SCHEMA
     @action(detail=True, methods=["delete"], url_path="delete-avatar")
     def delete_avatar(self, request, pk=None):
         """Удаление аватара сотрудника."""

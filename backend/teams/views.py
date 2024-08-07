@@ -1,50 +1,30 @@
 from django.db.models import Count
-from drf_spectacular.utils import (OpenApiResponse, extend_schema,
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (OpenApiParameter, OpenApiResponse,
+                                   extend_schema,
                                    extend_schema_view)
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from company.permissions import IsSuperuserOrReadOnly
 from teams.models import GazpromUserTeam, Team
+from teams.schemas import (ADD_EMPLOYEES_SCHEMA, EMPLOYEES_LIST_SCHEMA, REMOVE_EMPLOYEES_SCHEMA,
+                           TEAM_SCHEMA)
 from teams.serializers import (TeamAddEmployeesSerializer,
                                TeamDeleteEmployeesSerializer,
                                TeamEmployeeListSerializer, TeamGetSerializer,
                                TeamListSerializer, TeamWriteSerializer)
 
 
-# Create your views here.
-@extend_schema_view(
-    list=extend_schema(
-        description="Получение списка команд и числа сотрудников",
-        summary="Получение списка команд и числа сотрудников"
-    ),
-    retrieve=extend_schema(
-        description="Получение информации о команде и о числе сотрудников",
-        summary="Получение информации о команде и о числе сотрудников"
-    ),
-    create=extend_schema(
-        description="Добавление новой команды",
-        summary="Добавление новой команды"
-    ),
-    destroy=extend_schema(
-        description="Удаление команды",
-        summary="Удаление команды"
-    ),
-    partial_update=extend_schema(
-        description="Частичное изменение информации о команде",
-        summary="Частичное изменение информации о команде"
-    ),
-    update=extend_schema(
-        description="Изменение информации о команде",
-        summary="Изменение информации о команде"
-    ),
-)
+@TEAM_SCHEMA
 @extend_schema(tags=["team"])
 class TeamViewSet(viewsets.ModelViewSet):
     """Представление для команд."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("id", "team_name")
 
     def get_queryset(self):
         queryset = Team.objects.annotate(
@@ -72,16 +52,7 @@ class TeamViewSet(viewsets.ModelViewSet):
             return TeamDeleteEmployeesSerializer
         return TeamListSerializer
 
-    @extend_schema(
-        responses={
-            200: TeamEmployeeListSerializer(many=True),
-            404: OpenApiResponse(
-                description="No Team matches the given query.",
-            )
-        },
-        description="Получение списка сотрудников.",
-        summary="Получение списка сотрудников."
-    )
+    @EMPLOYEES_LIST_SCHEMA
     @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников команды."""
@@ -97,17 +68,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @extend_schema(
-        request=TeamAddEmployeesSerializer,
-        responses={
-            200: TeamAddEmployeesSerializer,
-            400: OpenApiResponse(
-                description="Invalid data",
-            )
-        },
-        description="Добавление сотрудников в команду.",
-        summary="Добавление сотрудников в команду."
-    )
+    @ADD_EMPLOYEES_SCHEMA
     @action(["post"], detail=True, url_path="add_employees")
     def add_employees(self, request, pk=None):
         """Добавление сотрудников в команду."""
@@ -135,17 +96,7 @@ class TeamViewSet(viewsets.ModelViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @extend_schema(
-        request=TeamDeleteEmployeesSerializer,
-        responses={
-            204: TeamDeleteEmployeesSerializer,
-            400: OpenApiResponse(
-                description="Invalid data",
-            )
-        },
-        description="Удаление сотрудников из команды.",
-        summary="Удаление сотрудников из команды."
-    )
+    @REMOVE_EMPLOYEES_SCHEMA
     @action(["delete"], detail=True, url_path="remove_employees")
     def remove_employees(self, request, pk=None):
         """Удаление сотрудников из команды."""
