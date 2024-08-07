@@ -64,3 +64,6 @@ class GazpromUserTeam(models.Model):
                 name='Employee can have only 1 role in 1 team'
             )
         ]
+
+    def __str__(self):
+        return f"{self.team.team_name} – {self.employee.employee_fio} – {self.role}"

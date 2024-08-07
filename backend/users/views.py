@@ -1,16 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (OpenApiExample, OpenApiResponse,
-                                   PolymorphicProxySerializer, extend_schema,
-                                   extend_schema_view)
-from rest_framework import parsers, status, viewsets
+from drf_spectacular.utils import (extend_schema, extend_schema_view,
+                                   OpenApiExample, OpenApiResponse,
+                                   PolymorphicProxySerializer)
+from rest_framework import filters, parsers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.filters import GazpromUserFilter
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
 from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
                                EmployeeListSerializer,
@@ -124,6 +126,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     http_method_names = ("get", "post", "patch", "delete")
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    search_fields = (
+        "id",
+        "employee_fio",
+        "employee_telegram",
+        "employee_telephone",
+        "email"
+    )
+    filterset_class = GazpromUserFilter
 
     def get_permissions(self):
         # Доступ к созданию и удалению пользователя

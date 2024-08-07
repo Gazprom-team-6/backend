@@ -132,7 +132,7 @@ class EmployeeListSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "employee_fio", "employee_avatar", "employee_position",
                   "employee_departament", "employee_telegram",
-                  "employee_telephone", "email", "employee_type_job"]
+                  "employee_telephone", "email", "employee_type_job", "employee_grade"]
 
 
 class EmployeeShortGetSerializer(serializers.ModelSerializer):

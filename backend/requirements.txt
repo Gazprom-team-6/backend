@@ -6,6 +6,7 @@ charset-normalizer==3.3.2
 cryptography==43.0.0
 defusedxml==0.8.0rc2
 Django==4.2
+django-filter==24.3
 django-templated-mail==1.1.1
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
@@ -30,6 +31,7 @@ referencing==0.35.1
 requests==2.32.3
 requests-oauthlib==2.0.0
 rpds-py==0.19.1
+ruff==0.5.6
 social-auth-app-django==5.4.2
 social-auth-core==4.5.4
 sqlparse==0.5.1

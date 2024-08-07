@@ -1,18 +1,12 @@
-from drf_spectacular.utils import (OpenApiResponse, extend_schema,
+from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import (extend_schema,
                                    extend_schema_view)
-from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework import filters, viewsets
 
 from company.permissions import IsSuperuserOrReadOnly
 from components.models import Component
 from components.serializers import (ComponentReadSerializer,
                                     ComponentWriteSerializer)
-from products.models import Product
-from products.serializers import (ProductChildrenReadSerializer,
-                                  ProductGetSerializer,
-                                  ProductWriteSerializer)
-from teams.models import Team
-from teams.serializers import TeamListSerializer
 
 
 @extend_schema_view(
@@ -46,6 +40,10 @@ class ComponentViewSet(viewsets.ModelViewSet):
     """Представление для компонента."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    search_fields = ("id", "component_name", "component_owner__employee_fio",
+                     "component_description")
+    filterset_fields = ("component_type",)
 
     def get_queryset(self):
         queryset = Component.objects.all()
