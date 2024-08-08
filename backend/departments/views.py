@@ -7,6 +7,8 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from company.mixins import BaseViewSet
+from company.models import AdditionalField
 from company.permissions import IsSuperuserOrReadOnly
 from departments.models import Department
 from departments.schemas import (CHILDREN_DEPARTMENTS_SCHEMA,
@@ -26,7 +28,7 @@ User = get_user_model()
 # Create your views here.
 @DEPARTMENT_SCHEMA
 @extend_schema(tags=["department"])
-class DepartmentViewSet(viewsets.ModelViewSet):
+class DepartmentViewSet(BaseViewSet):
     """Представление для департаментов."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
@@ -52,8 +54,9 @@ class DepartmentViewSet(viewsets.ModelViewSet):
             return DepartmentAddEmployeesSerializer
         elif self.action == "employees_list":
             return EmployeeShortGetSerializer
-        else:
+        elif self.action in ("create", "update", "partial_update"):
             return DepartmentWriteSerializer
+        return super().get_serializer_class()
 
     @EMPLOYEES_SCHEMA
     @action(["post", "delete"], detail=True, url_path="employees")

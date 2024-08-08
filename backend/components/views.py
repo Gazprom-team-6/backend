@@ -3,6 +3,7 @@ from drf_spectacular.utils import (extend_schema,
                                    extend_schema_view)
 from rest_framework import filters, viewsets
 
+from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from components.models import Component
 from components.schemas import COMPONENT_SCHEMA
@@ -12,7 +13,7 @@ from components.serializers import (ComponentReadSerializer,
 
 @COMPONENT_SCHEMA
 @extend_schema(tags=["component"])
-class ComponentViewSet(viewsets.ModelViewSet):
+class ComponentViewSet(BaseViewSet):
     """Представление для компонента."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
@@ -33,4 +34,6 @@ class ComponentViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ("create", "update", "partial_update"):
             return ComponentWriteSerializer
-        return ComponentReadSerializer
+        elif self.action in ("list", "retrieve"):
+            return ComponentReadSerializer
+        return super().get_serializer_class()

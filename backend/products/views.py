@@ -3,6 +3,7 @@ from drf_spectacular.utils import (OpenApiResponse, extend_schema,
 from rest_framework import filters, viewsets
 from rest_framework.decorators import action
 
+from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from components.models import Component
 from components.serializers import ComponentReadSerializer
@@ -20,7 +21,7 @@ from teams.serializers import TeamListSerializer
 
 @PRODUCT_SCHEMA
 @extend_schema(tags=["product"])
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(BaseViewSet):
     """Представление для продуктов."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
@@ -47,8 +48,9 @@ class ProductViewSet(viewsets.ModelViewSet):
             return ProductGetSerializer
         elif self.action == "product_components":
             return ComponentReadSerializer
-        else:
+        elif self.action in ("list", "root_products"):
             return ProductListSerializer
+        return super().get_serializer_class()
 
     @CHILDREN_PRODUCTS_SCHEMA
     @action(["get"], detail=True, url_path="subsidiary")

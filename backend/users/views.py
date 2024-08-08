@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from company.mixins import BaseViewSet
 from users.filters import GazpromUserFilter
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
 from users.schemas import (DELETE_AVATAR_SCHEMA, GAZPROMUSER_SCHEMA, ME_SCHEMA,
@@ -60,7 +61,7 @@ class PasswordResetView(APIView):
 
 @GAZPROMUSER_SCHEMA
 @extend_schema(tags=["users"])
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(BaseViewSet):
     """Представление для пользователей (сотрудников)."""
 
     queryset = User.objects.all()
@@ -106,8 +107,9 @@ class UserViewSet(viewsets.ModelViewSet):
             return EmployeePatchUserSerializer
         elif self.action == "upload_avatar":
             return AvatarUploadSerializer
-        else:
+        elif self.action == "list":
             return EmployeeListSerializer
+        return super().get_serializer_class()
 
     @ME_SCHEMA
     @action(["get"], detail=False)

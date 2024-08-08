@@ -7,6 +7,7 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from teams.models import GazpromUserTeam, Team
 from teams.schemas import (ADD_EMPLOYEES_SCHEMA, EMPLOYEES_LIST_SCHEMA, REMOVE_EMPLOYEES_SCHEMA,
@@ -19,7 +20,7 @@ from teams.serializers import (TeamAddEmployeesSerializer,
 
 @TEAM_SCHEMA
 @extend_schema(tags=["team"])
-class TeamViewSet(viewsets.ModelViewSet):
+class TeamViewSet(BaseViewSet):
     """Представление для команд."""
 
     permission_classes = [IsSuperuserOrReadOnly, ]
@@ -50,7 +51,9 @@ class TeamViewSet(viewsets.ModelViewSet):
             return TeamAddEmployeesSerializer
         elif self.action == "remove_employees":
             return TeamDeleteEmployeesSerializer
-        return TeamListSerializer
+        elif self.action == "list":
+            return TeamListSerializer
+        return super().get_serializer_class()
 
     @EMPLOYEES_LIST_SCHEMA
     @action(["get"], detail=True, url_path="employees_list")

@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from company.models import AdditionalField, Metric
+
 User = get_user_model()
 
 
@@ -28,3 +30,23 @@ class AddEmployeesBaseSerializer(serializers.Serializer):
             )
         # Возвращаем список id без дубликатов
         return list(provided_ids)
+
+
+class AdditionalFieldSerializer(serializers.ModelSerializer):
+    """Сериализатор для дополнительного поля."""
+
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = AdditionalField
+        fields = ["id", "name", "description"]
+
+
+class MetricSerializer(serializers.ModelSerializer):
+    """Сериализатор для дополнительного поля."""
+
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Metric
+        fields = ["id", "name", "description"]
