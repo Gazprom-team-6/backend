@@ -1,9 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-
-User = get_user_model()
 
 
 class AdditionalField(models.Model):
@@ -11,7 +8,7 @@ class AdditionalField(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     name = models.CharField(verbose_name="Название", max_length=255)
     description = models.TextField(verbose_name="Содержание поля")
@@ -21,7 +18,7 @@ class AdditionalField(models.Model):
         verbose_name_plural = "Дополнительные поля"
         default_related_name = "additionalfield"
         indexes = [
-            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=["content_type", "object_id"]),
         ]
 
     def __str__(self):
@@ -33,7 +30,7 @@ class Metric(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     name = models.CharField(verbose_name="Название", max_length=255)
     description = models.TextField(verbose_name="Содержание метрики")
@@ -43,7 +40,7 @@ class Metric(models.Model):
         verbose_name_plural = "Метрики"
         default_related_name = "metric"
         indexes = [
-            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=["content_type", "object_id"]),
         ]
 
     def __str__(self):
