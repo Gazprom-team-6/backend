@@ -16,7 +16,8 @@ class GazpromUserAdmin(admin.ModelAdmin):
               "employee_avatar", "employee_telegram", "employee_telephone",
               "employee_type_job", "employee_status", "employee_location",
               "employee_grade", "employee_description",
-              "is_employee_outsource", "skills", "employee_departament"]
+              "is_employee_outsource", "employee_departament"]
+    filter_horizontal = ["skills"]
     inlines = [AdditionalFieldInline, MetricInline]
 
 

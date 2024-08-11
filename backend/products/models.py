@@ -7,7 +7,6 @@ from components.models import Component
 User = get_user_model()
 
 
-# Create your models here.
 class Product(models.Model):
     """Модель продукта."""
 
@@ -27,13 +26,14 @@ class Product(models.Model):
     parent_product = models.ForeignKey(
         to='self',
         verbose_name="Родительский продукт",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='children_product'
     )
     components = models.ManyToManyField(
         to=Component,
+        through="ProductComponent",
         verbose_name="Компонент",
         blank=True
     )
@@ -56,3 +56,28 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+
+
+class ProductComponent(models.Model):
+    """Промежуточная модель для связи продуктов и компонентов."""
+
+    product = models.ForeignKey(
+        to=Product,
+        verbose_name="Продукт",
+        on_delete=models.CASCADE,
+    )
+    component = models.ForeignKey(
+        to=Component,
+        verbose_name="Компонент",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'component'],
+                name='unique_product_component'
+            )
+        ]
+        verbose_name = "компонент продукта"
+        verbose_name_plural = "Компоненты продуктов"

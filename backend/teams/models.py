@@ -61,7 +61,7 @@ class GazpromUserTeam(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['employee', 'team'],
-                name='Employee can have only 1 role in 1 team'
+                name='one_employee_role_in_one_team'
             )
         ]
 

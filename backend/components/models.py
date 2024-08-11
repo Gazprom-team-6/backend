@@ -11,7 +11,7 @@ class Component(models.Model):
     component_name = models.CharField(
         max_length=250,
         verbose_name="Название",
-        unique=True
+        unique=True,
     )
     component_type = models.CharField(
         max_length=150,

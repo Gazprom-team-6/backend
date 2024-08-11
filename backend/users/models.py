@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
 
 from users.constants import EMPLOYEE_STATUS, GRADES, JOB_TYPES
 from users.manager import GazpromUserManager
@@ -14,17 +15,20 @@ class GazpromUser(AbstractUser):
     REQUIRED_FIELDS = []
     objects = GazpromUserManager()
 
-    employee_fio = models.CharField(max_length=250, verbose_name="ФИО")
+    employee_fio = models.CharField(
+        max_length=250,
+        verbose_name="ФИО",
+    )
     email = models.EmailField(
         max_length=100,
         unique=True,
-        verbose_name="Адрес электронной почты"
+        verbose_name="Адрес электронной почты",
     )
     employee_position = models.CharField(
         verbose_name="Должность",
         max_length=250,
         null=True,
-        blank=True
+        blank=True,
     )
     employee_date_of_birth = models.DateField(
         verbose_name="Дата рождения",
@@ -48,14 +52,14 @@ class GazpromUser(AbstractUser):
         verbose_name="Телеграм",
         max_length=50,
         null=True,
-        blank=True
+        blank=True,
     )
     employee_telephone = models.CharField(
         validators=[phone_regex],
         max_length=20,
         verbose_name="Номер телефона",
         null=True,
-        blank=True
+        blank=True,
     )
     employee_type_job = models.CharField(
         verbose_name="Тип занятости",
@@ -97,9 +101,9 @@ class GazpromUser(AbstractUser):
         verbose_name="Суперпользователь",
         default=False,
     )
-
     skills = models.ManyToManyField(
         to="Skill",
+        through="EmployeeSkill",
         verbose_name="Навыки",
         blank=True
     )
@@ -116,6 +120,24 @@ class GazpromUser(AbstractUser):
         verbose_name = "пользователь"
         verbose_name_plural = "Пользователи"
         default_related_name = "users"
+        indexes = [
+            models.Index(fields=["employee_fio"]),
+            models.Index(fields=["employee_position"]),
+            models.Index(fields=["employee_telegram"]),
+            models.Index(fields=["employee_telephone"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['employee_telegram'],
+                name='unique_employee_telegram',
+                condition=~Q(employee_telegram=None),
+            ),
+            models.UniqueConstraint(
+                fields=['employee_telephone'],
+                name='unique_employee_telephone',
+                condition=~Q(employee_telephone=None),
+            ),
+        ]
 
     def __str__(self):
         return f"{self.employee_fio}"
@@ -137,3 +159,28 @@ class Skill(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class EmployeeSkill(models.Model):
+    """Промежуточная модель для связи сотрудника и навыков."""
+
+    employee = models.ForeignKey(
+        to=GazpromUser,
+        verbose_name="Сотрудник",
+        on_delete=models.CASCADE
+    )
+    skill = models.ForeignKey(
+        to=Skill,
+        verbose_name="Навык",
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['employee', 'skill'],
+                name='unique_employee_skill'
+            )
+        ]
+        verbose_name = "навык сотрудника"
+        verbose_name_plural = "Навыки сотрудников"
