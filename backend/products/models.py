@@ -43,6 +43,9 @@ class Product(models.Model):
         verbose_name_plural = "Продукты"
         default_related_name = "product"
 
+    def __str__(self):
+        return self.product_name
+
     def clean(self):
         """
         Проверяем, что родителем продукта не назначен сам продукт.
@@ -54,8 +57,6 @@ class Product(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.product_name
 
 
 class ProductComponent(models.Model):

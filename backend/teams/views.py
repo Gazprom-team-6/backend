@@ -1,4 +1,6 @@
 from django.db.models import Count
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (OpenApiParameter, OpenApiResponse,
                                    extend_schema,
@@ -56,6 +58,7 @@ class TeamViewSet(BaseViewSet):
         return super().get_serializer_class()
 
     @EMPLOYEES_LIST_SCHEMA
+    @method_decorator(cache_page(60 * 60 * 2))
     @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников команды."""

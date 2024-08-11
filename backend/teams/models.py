@@ -36,6 +36,26 @@ class Team(models.Model):
     def __str__(self):
         return self.team_name
 
+    def save(self, *args, **kwargs):
+        """
+        Переопределение метода save для добавления team_manager
+        в GazpromUserTeam с ролью 'Руководитель'.
+        """
+        super().save(*args, **kwargs)  # Сначала сохраняем команду
+
+        if self.team_manager:
+            # Проверяем, если уже есть запись для этого менеджера в этой
+            # команде
+            gazprom_user_team, created = GazpromUserTeam.objects.get_or_create(
+                employee=self.team_manager,
+                team=self,
+                defaults={'role': 'Руководитель'}
+            )
+            if not created:
+                # Если запись существует, обновляем роль
+                gazprom_user_team.role = 'Руководитель'
+                gazprom_user_team.save()
+
 
 class GazpromUserTeam(models.Model):
     """Модель для связи сотрудников и команд."""
@@ -66,4 +86,5 @@ class GazpromUserTeam(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.team.team_name} – {self.employee.employee_fio} – {self.role}"
+        return (f"{self.team.team_name} – {self.employee.employee_fio} – "
+                f"{self.role}")

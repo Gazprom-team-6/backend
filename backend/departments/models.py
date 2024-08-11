@@ -49,3 +49,9 @@ class Department(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+        # После сохранения проверяем, назначен ли руководитель
+        if self.departament_owner:
+            # Обновляем поле employee_departament у назначенного руководителя
+            self.departament_owner.employee_departament = self
+            self.departament_owner.save()
