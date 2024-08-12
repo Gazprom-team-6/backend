@@ -3,7 +3,8 @@ from rest_framework import serializers
 from company.serializers import AddEmployeesBaseSerializer
 from products.serializers import ProductBaseSerializer
 from teams.models import GazpromUserTeam, Team
-from users.serializers import EmployeeShortGetSerializer
+from users.serializers import (EmployeeIdFIOGetSerializer,
+                               EmployeeShortGetSerializer)
 
 
 class TeamBaseSerializer(serializers.ModelSerializer):
@@ -27,7 +28,7 @@ class TeamWriteSerializer(TeamBaseSerializer):
 class TeamListSerializer(TeamBaseSerializer):
     """Сериализатор для получения списка команд."""
 
-    product = serializers.StringRelatedField(read_only=True)
+    team_manager = EmployeeShortGetSerializer()
     employee_count = serializers.IntegerField(read_only=True)
 
     class Meta:

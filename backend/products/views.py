@@ -1,6 +1,6 @@
-from drf_spectacular.utils import (OpenApiResponse, extend_schema,
-                                   extend_schema_view)
-from rest_framework import filters, viewsets
+from django.db.models import Prefetch
+from drf_spectacular.utils import (extend_schema)
+from rest_framework import filters
 from rest_framework.decorators import action
 
 from company.mixins import BaseViewSet
@@ -14,6 +14,7 @@ from products.schemas import (CHILDREN_PRODUCTS_SCHEMA,
 from products.serializers import (ProductChildrenReadSerializer,
                                   ProductGetSerializer,
                                   ProductListSerializer,
+                                  ProductRootSerializer,
                                   ProductWriteSerializer)
 from teams.models import Team
 from teams.serializers import TeamListSerializer
@@ -33,8 +34,75 @@ class ProductViewSet(BaseViewSet):
         if self.action in ("retrieve", "list"):
             queryset = queryset.select_related(
                 "product_manager",
-                "parent_product"
+            ).prefetch_related(
+                Prefetch(
+                    "components",
+                    queryset=Component.objects.all().only(
+                        "id",
+                        "component_name"
+                    )
+                )
             )
+            if self.action == "retrieve":
+                queryset = queryset.select_related(
+                    "parent_product"
+                ).prefetch_related(
+                    Prefetch(
+                        "parent_product__components",
+                        queryset=Component.objects.all().only(
+                            "id",
+                        )
+                    )
+                ).only(
+                    "id",
+                    "product_name",
+                    "product_description",
+                    "product_manager__id",
+                    "product_manager__employee_fio",
+                    "product_manager__employee_avatar",
+                    "product_manager__employee_position",
+                    "product_manager__employee_grade",
+                    "parent_product__id",
+                    "parent_product__product_name",
+                    "parent_product__product_description",
+                    "parent_product__product_manager",
+                    "parent_product__parent_product",
+                    "parent_product__components",
+                )
+            else:
+                queryset = queryset.only(
+                    "id",
+                    "product_name",
+                    "product_description",
+                    "parent_product",
+                    "product_manager__id",
+                    "product_manager__employee_fio",
+                    "product_manager__employee_avatar",
+                    "product_manager__employee_position",
+                    "product_manager__employee_grade",
+                )
+        elif self.action in ("children_products", "root_products"):
+            queryset = queryset.select_related("product_manager").only(
+                "id",
+                "product_name",
+                "product_description",
+                "product_manager__id",
+                "product_manager__employee_fio",
+                "product_manager__employee_avatar",
+                "product_manager__employee_position",
+                "product_manager__employee_grade",
+
+            )
+            if self.action == "root_products":
+                queryset = queryset.prefetch_related(
+                    Prefetch(
+                        "components",
+                        queryset=Component.objects.all().only(
+                            "id",
+                            "component_name"
+                        )
+                    )
+                )
         return queryset
 
     def get_serializer_class(self):
@@ -48,67 +116,80 @@ class ProductViewSet(BaseViewSet):
             return ProductGetSerializer
         elif self.action == "product_components":
             return ComponentReadSerializer
-        elif self.action in ("list", "root_products"):
+        elif self.action == "list":
             return ProductListSerializer
+        elif self.action == "root_products":
+            return ProductRootSerializer
         return super().get_serializer_class()
 
     @CHILDREN_PRODUCTS_SCHEMA
     @action(["get"], detail=True, url_path="subsidiary")
     def children_products(self, request, pk=None):
         """Получение списка дочерних продуктов."""
-        parent_product = self.get_object()
-        children = Product.objects.filter(
-            parent_product=parent_product
+        # Проверяем, что продукт с переданным id существует
+        if error_response := self.is_object_exists(pk):
+            return error_response
+        children = self.get_queryset().filter(parent_product_id=pk)
+        return self.get_paginated_data(
+            request=request,
+            queryset=children
         )
-        page = self.paginate_queryset(children)
-        serializer = self.get_serializer(
-            page,
-            many=True,
-            context={"request": request}
-        )
-        return self.get_paginated_response(serializer.data)
 
     @ROOT_PRODUCTS_SCHEMA
     @action(["get"], detail=False, url_path="root_products")
     def root_products(self, request, pk=None):
         """Получение списка корневых продуктов."""
-        departments = Product.objects.filter(
-            parent_product=None
+        products = self.get_queryset().filter(parent_product=None)
+        return self.get_paginated_data(
+            request=request,
+            queryset=products
         )
-        page = self.paginate_queryset(departments)
-        serializer = self.get_serializer(
-            page,
-            many=True,
-            context={"request": request}
-        )
-        return self.get_paginated_response(serializer.data)
 
     @PRODUCT_TEAMS_SCHEMA
     @action(["get"], detail=True, url_path="product_teams")
     def product_teams(self, request, pk=None):
         """Получение списка команд продукта."""
-        product = self.get_object()
-        teams = Team.objects.filter(
-            product=product
+        # Проверяем, что продукт с переданным id существует
+        if error_response := self.is_object_exists(pk):
+            return error_response
+        teams = Team.objects.filter(product_id=pk).select_related(
+            "team_manager"
+        ).only(
+            "id",
+            "team_name",
+            "product",
+            "team_manager__id",
+            "team_manager__employee_fio",
+            "team_manager__employee_avatar",
+            "team_manager__employee_position",
+            "team_manager__employee_grade",
         )
-        page = self.paginate_queryset(teams)
-        serializer = self.get_serializer(
-            page,
-            many=True,
-            context={"request": request}
+        return self.get_paginated_data(
+            request=request,
+            queryset=teams
         )
-        return self.get_paginated_response(serializer.data)
 
     @PRODUCT_COMPONENTS_SCHEMA
     @action(["get"], detail=True, url_path="product_components")
     def product_components(self, request, pk=None):
-        """Получение списка команд продукта."""
+        """Получение списка компонентов продукта."""
         product = self.get_object()
-        components = product.components.all()
-        page = self.paginate_queryset(components)
-        serializer = self.get_serializer(
-            page,
-            many=True,
-            context={"request": request}
+        components = product.components.all().select_related(
+            "component_owner",
+            "component_second_owner"
+        ).only(
+            "id",
+            "component_name",
+            "component_type",
+            "component_link",
+            "component_description",
+            "component_owner__id",
+            "component_owner__employee_fio",
+            "component_second_owner__id",
+            "component_second_owner__employee_fio",
+
         )
-        return self.get_paginated_response(serializer.data)
+        return self.get_paginated_data(
+            request=request,
+            queryset=components
+        )

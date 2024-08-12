@@ -82,3 +82,4 @@ class ProductComponent(models.Model):
         ]
         verbose_name = "компонент продукта"
         verbose_name_plural = "Компоненты продуктов"
+        default_related_name = "productcomponent"

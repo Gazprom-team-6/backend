@@ -3,7 +3,8 @@ from drf_spectacular.utils import (extend_schema, extend_schema_view,
                                    OpenApiParameter, OpenApiResponse)
 
 from components.serializers import ComponentReadSerializer
-from products.serializers import ProductChildrenReadSerializer
+from products.serializers import (ProductChildrenReadSerializer,
+                                  ProductListSerializer, ProductRootSerializer)
 from teams.serializers import TeamListSerializer
 
 PRODUCT_SCHEMA = extend_schema_view(
@@ -67,7 +68,7 @@ CHILDREN_PRODUCTS_SCHEMA = extend_schema(
 
 ROOT_PRODUCTS_SCHEMA = extend_schema(
     responses={
-        200: ProductChildrenReadSerializer(many=True),
+        200: ProductRootSerializer(many=True),
         404: OpenApiResponse(
             description="No Product matches the given query.",
         )
