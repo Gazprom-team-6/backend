@@ -125,6 +125,8 @@ class GazpromUser(AbstractUser):
             models.Index(fields=["employee_position"]),
             models.Index(fields=["employee_telegram"]),
             models.Index(fields=["employee_telephone"]),
+            models.Index(fields=["employee_grade"]),
+            models.Index(fields=["employee_location"]),
         ]
         constraints = [
             models.UniqueConstraint(

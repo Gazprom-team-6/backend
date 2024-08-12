@@ -35,6 +35,9 @@ class Department(models.Model):
         verbose_name = "департамент"
         verbose_name_plural = "Департаменты"
         default_related_name = "departament"
+        indexes = [
+            models.Index(fields=["departament_description"]),
+        ]
 
     def __str__(self):
         return self.departament_name

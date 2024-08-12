@@ -42,6 +42,9 @@ class Product(models.Model):
         verbose_name = "продукт"
         verbose_name_plural = "Продукты"
         default_related_name = "product"
+        indexes = [
+            models.Index(fields=["product_description"]),
+        ]
 
     def __str__(self):
         return self.product_name

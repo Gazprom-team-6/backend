@@ -46,6 +46,9 @@ class Component(models.Model):
         verbose_name = "компонент"
         verbose_name_plural = "Компоненты"
         default_related_name = "component"
+        indexes = [
+            models.Index(fields=["component_description"]),
+        ]
 
     def __str__(self):
         return self.component_name
