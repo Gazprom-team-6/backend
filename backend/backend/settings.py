@@ -25,6 +25,8 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 INTERNAL_IPS = os.getenv("INTERNAL_IPS", "").split(",")
 
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "*").split(",")
+
 
 # Application definition
 
@@ -40,7 +42,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_spectacular',
     'django_filters',
-    'cachalot',
+    # 'cachalot',
 
     'users.apps.UsersConfig',
     'company.apps.CompanyConfig',
@@ -225,16 +227,16 @@ LOGGING = {
 }
 
 # Настройки кэширования
-CACHES_REDIS_URL = os.getenv("CACHES_REDIS_URL")
-CACHES_REDIS_DB = os.getenv("CACHES_REDIS_DB")
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": CACHES_REDIS_URL,
-        "OPTIONS": {
-            "db": CACHES_REDIS_DB,
-        },
-    }
-}
+# CACHES_REDIS_URL = os.getenv("CACHES_REDIS_URL")
+# CACHES_REDIS_DB = os.getenv("CACHES_REDIS_DB")
+#
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": CACHES_REDIS_URL,
+#         "OPTIONS": {
+#             "db": CACHES_REDIS_DB,
+#         },
+#     }
+# }
 

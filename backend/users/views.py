@@ -36,30 +36,28 @@ class PasswordResetView(APIView):
 
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data["email"]
-            user = User.objects.get(email=email)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+        user = User.objects.get(email=email)
 
-            # Генерация нового пароля
-            new_password = get_random_string(length=8)
-            user.set_password(new_password)
-            user.save()
+        # Генерация нового пароля
+        new_password = get_random_string(length=8)
+        user.set_password(new_password)
+        user.save()
 
-            # Отправка нового пароля по email
-            send_mail(
-                "Восстановление пароля",
-                f"Ваш новый пароль: {new_password}",
-                "no-reply@yourdomain.com",
-                [email],
-                fail_silently=False,
-            )
+        # Отправка нового пароля по email
+        send_mail(
+            "Восстановление пароля",
+            f"Ваш новый пароль: {new_password}",
+            "no-reply@yourdomain.com",
+            [email],
+            fail_silently=False,
+        )
 
-            return Response(
-                {"message": "Новый пароль отправлен на email"},
-                status=status.HTTP_200_OK
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response(
+            {"message": "Новый пароль отправлен на email"},
+            status=status.HTTP_200_OK
+        )
 
 @GAZPROMUSER_SCHEMA
 @extend_schema(tags=["users"])
@@ -134,10 +132,9 @@ class UserViewSet(BaseViewSet):
             data=request.data,
             partial=True
         )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @DELETE_AVATAR_SCHEMA
     @action(detail=True, methods=["delete"], url_path="delete-avatar")

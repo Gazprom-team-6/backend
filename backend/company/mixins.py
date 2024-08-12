@@ -27,20 +27,19 @@ class BaseViewSet(viewsets.ModelViewSet):
         """Обработчик добавления дополнительных данных."""
         model_object = self.get_object()
         serializer = serializer_class(data=request.data)
-        if serializer.is_valid():
-            name = serializer.validated_data["name"]
-            description = serializer.validated_data["description"]
-            additional_data = model_class(
-                content_object=model_object,
-                name=name,
-                description=description
-            )
-            additional_data.save()
-            return Response(
-                serializer_class(additional_data).data,
-                status=status.HTTP_200_OK
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        name = serializer.validated_data["name"]
+        description = serializer.validated_data["description"]
+        additional_data = model_class(
+            content_object=model_object,
+            name=name,
+            description=description
+        )
+        additional_data.save()
+        return Response(
+            serializer_class(additional_data).data,
+            status=status.HTTP_200_OK
+        )
 
     @ADD_FIELD_SCHEMA
     @action(methods=["post"], detail=True, url_path="add_field")

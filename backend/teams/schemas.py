@@ -4,6 +4,7 @@ from drf_spectacular.utils import (extend_schema, extend_schema_view,
 
 from teams.serializers import (TeamAddEmployeesSerializer,
                                TeamDeleteEmployeesSerializer,
+                               TeamEmployeeChangeRoleSerializer,
                                TeamEmployeeListSerializer)
 
 TEAM_SCHEMA = extend_schema_view(
@@ -87,4 +88,19 @@ REMOVE_EMPLOYEES_SCHEMA = extend_schema(
     },
     description="Удаление сотрудников из команды.",
     summary="Удаление сотрудников из команды."
+)
+
+CHANGE_EMPLOYEE_ROLE_SCHEMA = extend_schema(
+    request=TeamEmployeeChangeRoleSerializer,
+    responses={
+        200: TeamEmployeeChangeRoleSerializer,
+        400: OpenApiResponse(
+            description="Invalid data",
+        ),
+        404: OpenApiResponse(
+            description="No Object matches the given query."
+        )
+    },
+    description="Изменение роли пользователя в команде.",
+    summary="Изменение роли пользователя в команде."
 )

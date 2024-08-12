@@ -126,10 +126,8 @@ class ProductViewSet(BaseViewSet):
     @action(["get"], detail=True, url_path="subsidiary")
     def children_products(self, request, pk=None):
         """Получение списка дочерних продуктов."""
-        # Проверяем, что продукт с переданным id существует
-        if error_response := self.is_object_exists(pk):
-            return error_response
-        children = self.get_queryset().filter(parent_product_id=pk)
+        product = self.get_object()
+        children = self.get_queryset().filter(parent_product=product)
         return self.get_paginated_data(
             request=request,
             queryset=children
@@ -149,10 +147,8 @@ class ProductViewSet(BaseViewSet):
     @action(["get"], detail=True, url_path="product_teams")
     def product_teams(self, request, pk=None):
         """Получение списка команд продукта."""
-        # Проверяем, что продукт с переданным id существует
-        if error_response := self.is_object_exists(pk):
-            return error_response
-        teams = Team.objects.filter(product_id=pk).select_related(
+        product = self.get_object()
+        teams = Team.objects.filter(product=product).select_related(
             "team_manager"
         ).only(
             "id",

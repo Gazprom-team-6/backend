@@ -82,35 +82,30 @@ class DepartmentViewSet(BaseViewSet):
     @action(["post", "delete"], detail=True, url_path="employees")
     def employees(self, request, pk=None):
         """Добавление и удаление сотрудников из департамента."""
-        # Проверяем, что департамент с переданным id существует
-        if error_response := self.is_object_exists(pk):
-            return error_response
+        department = self.get_object()
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            employee_ids = serializer.validated_data["employee_ids"]
-            employees = User.objects.filter(id__in=employee_ids)
-            if request.method == "POST":
-                employees.update(employee_departament_id=pk)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_200_OK
-                )
-            else:
-                employees.update(employee_departament=None)
-                return Response(
-                    status=status.HTTP_204_NO_CONTENT
-                )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        employee_ids = serializer.validated_data["employee_ids"]
+        employees = User.objects.filter(id__in=employee_ids)
+        if request.method == "POST":
+            employees.update(employee_departament=department)
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+        else:
+            employees.update(employee_departament=None)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
 
     @CHILDREN_DEPARTMENTS_SCHEMA
     @action(["get"], detail=True, url_path="subsidiary")
     def children_departments(self, request, pk=None):
         """Получение списка дочерних департаментов."""
-        # Проверяем, что департамент с переданным id существует
-        if error_response := self.is_object_exists(pk):
-            return error_response
+        department = self.get_object()
         children = self.get_queryset().filter(
-            parent_department_id=pk
+            parent_department=department
         )
         return self.get_paginated_data(
             request=request,
@@ -121,11 +116,9 @@ class DepartmentViewSet(BaseViewSet):
     @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников."""
-        # Проверяем, что департамент с переданным id существует
-        if error_response := self.is_object_exists(pk):
-            return error_response
+        department = self.get_object()
         employees = User.objects.filter(
-            employee_departament_id=pk
+            employee_departament=department
         ).only(
             "id",
             "employee_fio",
