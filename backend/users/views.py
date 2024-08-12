@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import Prefetch
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
@@ -14,6 +15,7 @@ from rest_framework.views import APIView
 
 from company.mixins import BaseViewSet
 from users.filters import GazpromUserFilter
+from users.models import Skill
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
 from users.schemas import (DELETE_AVATAR_SCHEMA, GAZPROMUSER_SCHEMA, ME_SCHEMA,
                            PASSWORD_RESET_VIEW_SCHEMA, UPLOAD_AVATAR_SCHEMA)

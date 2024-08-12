@@ -184,3 +184,4 @@ class EmployeeSkill(models.Model):
         ]
         verbose_name = "навык сотрудника"
         verbose_name_plural = "Навыки сотрудников"
+        default_related_name = "employeeskill"

@@ -7,6 +7,11 @@ from users.models import Skill
 User = get_user_model()
 
 
+class SkillsInline(admin.TabularInline):
+    model = Skill.users.through
+    extra = 0
+
+
 class GazpromUserAdmin(admin.ModelAdmin):
     """Отображение пользователей."""
 
@@ -17,8 +22,7 @@ class GazpromUserAdmin(admin.ModelAdmin):
               "employee_type_job", "employee_status", "employee_location",
               "employee_grade", "employee_description",
               "is_employee_outsource", "employee_departament"]
-    filter_horizontal = ["skills"]
-    inlines = [AdditionalFieldInline, MetricInline]
+    inlines = [AdditionalFieldInline, MetricInline, SkillsInline]
 
 
 admin.site.register(User, GazpromUserAdmin)
