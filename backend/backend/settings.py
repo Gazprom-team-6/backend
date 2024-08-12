@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_spectacular',
     'django_filters',
-    # 'cachalot',
+    'cachalot',
 
     'users.apps.UsersConfig',
     'company.apps.CompanyConfig',
