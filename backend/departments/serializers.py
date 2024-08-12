@@ -52,11 +52,12 @@ class DepartmentChildrenReadSerializer(DepartmentBaseSerializer):
     """Сериализатор для получения дочерних департаментов."""
 
     departament_owner = EmployeeShortGetSerializer()
+    employee_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Department
         fields = ["id", "departament_name", "departament_owner",
-                  "departament_description"]
+                  "departament_description", "employee_count"]
 
 
 class DepartmentAddEmployeesSerializer(AddEmployeesBaseSerializer):

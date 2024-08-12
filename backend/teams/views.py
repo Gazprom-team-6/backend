@@ -1,18 +1,14 @@
 from django.db.models import Count
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (OpenApiParameter, OpenApiResponse,
-                                   extend_schema,
-                                   extend_schema_view)
-from rest_framework import filters, status, viewsets
+from drf_spectacular.utils import (extend_schema)
+from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from teams.models import GazpromUserTeam, Team
-from teams.schemas import (ADD_EMPLOYEES_SCHEMA, EMPLOYEES_LIST_SCHEMA, REMOVE_EMPLOYEES_SCHEMA,
+from teams.schemas import (ADD_EMPLOYEES_SCHEMA, EMPLOYEES_LIST_SCHEMA,
+                           REMOVE_EMPLOYEES_SCHEMA,
                            TEAM_SCHEMA)
 from teams.serializers import (TeamAddEmployeesSerializer,
                                TeamDeleteEmployeesSerializer,
@@ -30,11 +26,11 @@ class TeamViewSet(BaseViewSet):
     search_fields = ("id", "team_name")
 
     def get_queryset(self):
-        queryset = Team.objects.annotate(
-            employee_count=Count('gazpromuserteam__employee')
-        )
+        queryset = Team.objects.all()
         if self.action in ("retrieve", "list"):
-            queryset = queryset.select_related(
+            queryset = queryset.annotate(
+                employee_count=Count('gazpromuserteam__employee')
+            ).select_related(
                 "team_manager",
                 "product"
             )
@@ -58,7 +54,7 @@ class TeamViewSet(BaseViewSet):
         return super().get_serializer_class()
 
     @EMPLOYEES_LIST_SCHEMA
-    @method_decorator(cache_page(60 * 60 * 2))
+    # @method_decorator(cache_page(60 * 60 * 2))
     @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников команды."""

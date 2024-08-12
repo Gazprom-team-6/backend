@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from components.models import Component
+from users.serializers import EmployeeIdFIOGetSerializer
 
 
 class ComponentBaseSerializer(serializers.ModelSerializer):
@@ -16,8 +17,8 @@ class ComponentBaseSerializer(serializers.ModelSerializer):
 class ComponentReadSerializer(serializers.ModelSerializer):
     """Сериализатор для получения компонентов."""
 
-    component_owner = serializers.StringRelatedField()
-    component_second_owner = serializers.StringRelatedField()
+    component_owner = EmployeeIdFIOGetSerializer()
+    component_second_owner = EmployeeIdFIOGetSerializer()
 
     class Meta:
         model = Component

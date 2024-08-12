@@ -1,7 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import (extend_schema,
-                                   extend_schema_view)
-from rest_framework import filters, viewsets
+from drf_spectacular.utils import (extend_schema)
+from rest_framework import filters
 
 from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
@@ -28,6 +27,16 @@ class ComponentViewSet(BaseViewSet):
             queryset = queryset.select_related(
                 "component_owner",
                 "component_second_owner",
+            ).only(
+                "id",
+                "component_name",
+                "component_type",
+                "component_link",
+                "component_description",
+                "component_owner__employee_fio",
+                "component_owner__id",
+                "component_second_owner__employee_fio",
+                "component_second_owner__id",
             )
         return queryset
 

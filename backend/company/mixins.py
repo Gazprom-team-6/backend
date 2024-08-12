@@ -63,3 +63,29 @@ class BaseViewSet(viewsets.ModelViewSet):
             serializer_class=MetricSerializer,
             model_class=Metric
         )
+
+    def get_paginated_data(self, request, queryset):
+        """Пагинация и сериализия queryset."""
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(
+                page,
+                many=True,
+                context={"request": request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset,
+            many=True,
+            context={"request": request}
+        )
+        return Response(serializer.data)
+
+    def is_object_exists(self, pk):
+        """Проверка, существует ли объект в БД."""
+        if not self.get_queryset().filter(id=pk).exists():
+            return Response(
+                status=status.HTTP_404_NOT_FOUND
+            )
+        return None

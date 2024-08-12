@@ -149,6 +149,18 @@ class EmployeeShortGetSerializer(serializers.ModelSerializer):
                   "employee_grade"]
 
 
+class EmployeeIdFIOGetSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для получения ID и ФИО сотрудника.
+    """
+
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = User
+        fields = ["id", "employee_fio"]
+
+
 class AvatarUploadSerializer(serializers.ModelSerializer):
     """Сериализатор для загрузки аватара."""
 
