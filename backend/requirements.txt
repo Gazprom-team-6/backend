@@ -37,3 +37,4 @@ social-auth-core==4.5.4
 sqlparse==0.5.1
 uritemplate==4.1.1
 urllib3==2.2.2
+django-cachalot==2.4.1

@@ -35,10 +35,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'djoser',
     'drf_spectacular',
     'django_filters',
+    # 'cachalot',
+
     'users.apps.UsersConfig',
     'company.apps.CompanyConfig',
     'departments.apps.DepartmentsConfig',
@@ -219,5 +222,19 @@ LOGGING = {
             'handlers': ['console'],
         },
     },
+}
+
+# Настройки кэширования
+CACHES_REDIS_URL = os.getenv("CACHES_REDIS_URL")
+CACHES_REDIS_DB = os.getenv("CACHES_REDIS_DB")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": CACHES_REDIS_URL,
+        "OPTIONS": {
+            "db": CACHES_REDIS_DB,
+        },
+    }
 }
 
