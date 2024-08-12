@@ -32,8 +32,32 @@ class TeamViewSet(BaseViewSet):
                 employee_count=Count('gazpromuserteam__employee')
             ).select_related(
                 "team_manager",
-                "product"
+            ).only(
+                "id",
+                "team_name",
+                "team_manager__id",
+                "product",
+                "team_manager__employee_fio",
+                "team_manager__employee_avatar",
+                "team_manager__employee_position",
+                "team_manager__employee_grade",
+
             )
+            if self.action == "retrieve":
+                queryset = queryset.select_related("product").only(
+                    "id",
+                    "team_name",
+                    "team_manager__id",
+                    "team_manager__employee_fio",
+                    "team_manager__employee_avatar",
+                    "team_manager__employee_position",
+                    "team_manager__employee_grade",
+                    "product__id",
+                    "product__product_name",
+                    "product__product_manager",
+                    "product__product_description",
+                    "product__parent_product",
+                )
         return queryset
 
     def get_serializer_class(self):
@@ -58,17 +82,23 @@ class TeamViewSet(BaseViewSet):
     @action(["get"], detail=True, url_path="employees_list")
     def employees_list(self, request, pk=None):
         """Получение списка сотрудников команды."""
-        team = self.get_object()
-        employees = GazpromUserTeam.objects.filter(team=team).select_related(
+        # Проверяем, что команда с переданным id существует
+        if error_response := self.is_object_exists(pk):
+            return error_response
+        employees = GazpromUserTeam.objects.filter(team_id=pk).select_related(
             "employee"
+        ).only(
+            "role",
+            "employee__id",
+            "employee__employee_fio",
+            "employee__employee_avatar",
+            "employee__employee_position",
+            "employee__employee_grade",
         )
-        page = self.paginate_queryset(employees)
-        serializer = self.get_serializer(
-            page,
-            many=True,
-            context={"request": request}
+        return self.get_paginated_data(
+            request=request,
+            queryset=employees
         )
-        return self.get_paginated_response(serializer.data)
 
     @ADD_EMPLOYEES_SCHEMA
     @action(["post"], detail=True, url_path="add_employees")

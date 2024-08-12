@@ -9,7 +9,6 @@ class ComponentInline(admin.TabularInline):
     model = Component.product.through
     extra = 1
 
-
 class ProductAdmin(admin.ModelAdmin):
     inlines = [AdditionalFieldInline, MetricInline, ComponentInline]
     filter_horizontal = ("components",)

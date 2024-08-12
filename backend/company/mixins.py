@@ -86,6 +86,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         """Проверка, существует ли объект в БД."""
         if not self.get_queryset().filter(id=pk).exists():
             return Response(
+                {"detail": "No Objects matches the given query."},
                 status=status.HTTP_404_NOT_FOUND
             )
         return None

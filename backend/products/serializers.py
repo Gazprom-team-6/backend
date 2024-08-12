@@ -78,3 +78,12 @@ class ProductChildrenReadSerializer(ProductBaseSerializer):
         model = Product
         fields = ["id", "product_name", "product_manager",
                   "product_description"]
+
+
+class ProductShortReadSerializer(ProductBaseSerializer):
+    """Сериализатор для получения продуктов c минимальным набором полей."""
+
+    class Meta:
+        model = Product
+        fields = ["id", "product_name", "product_manager",
+                  "product_description", "parent_product"]
