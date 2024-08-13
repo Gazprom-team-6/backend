@@ -24,6 +24,20 @@ services:
     volumes:
       - static:/backend_static
       - media:/app/media
+      - ./backend/:/backend
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - ./backend/:/backend
+    links:
+      - redis
+    depends_on:
+      - redis
 
   nginx:
     build: ./nginx/
