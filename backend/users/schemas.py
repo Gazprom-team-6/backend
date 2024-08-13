@@ -95,7 +95,9 @@ GAZPROMUSER_SCHEMA = extend_schema_view(
     ),
     create=extend_schema(
         description="Добавление нового сотрудника",
-        summary="Добавление нового сотрудника."
+        summary="Добавление нового сотрудника.",
+        request=EmployeeWriteSuperuserSerializer
+
     ),
     destroy=extend_schema(
         description="Увольнение сотрудника. "

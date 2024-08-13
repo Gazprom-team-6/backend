@@ -62,12 +62,12 @@ class EmployeeWriteSuperuserSerializer(serializers.ModelSerializer):
     )
     employee_date_of_hire = serializers.DateField(
         format="%d-%m-%Y",
-        input_formats=["%d-%m-%Y", ],
+        input_formats=["%d-%m-%Y", "%Y-%m-%d"],
         required=False
     )
     employee_date_of_birth = serializers.DateField(
         format="%d-%m-%Y",
-        input_formats=["%d-%m-%Y", ],
+        input_formats=["%d-%m-%Y", "%Y-%m-%d"],
         required=False
     )
     employee_type_job = serializers.ChoiceField(
@@ -86,7 +86,7 @@ class EmployeeWriteSuperuserSerializer(serializers.ModelSerializer):
         fields = ["id", "password", "employee_fio", "email",
                   "employee_position",
                   "employee_date_of_birth", "employee_date_of_hire",
-                  "employee_avatar", "employee_telegram", "employee_telephone",
+                  "employee_telegram", "employee_telephone",
                   "employee_type_job", "employee_status", "employee_location",
                   "employee_grade", "employee_description", "is_superuser",
                   "is_employee_outsource", "skills", "employee_departament"]
