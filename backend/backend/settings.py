@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 from dotenv import load_dotenv
+import sentry_sdk
 
 load_dotenv()
 
@@ -42,7 +43,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_spectacular',
     'django_filters',
-    # 'cachalot',
+    'cachalot',
 
     'users.apps.UsersConfig',
     'company.apps.CompanyConfig',
@@ -227,16 +228,25 @@ LOGGING = {
 }
 
 # Настройки кэширования
-# CACHES_REDIS_URL = os.getenv("CACHES_REDIS_URL")
-# CACHES_REDIS_DB = os.getenv("CACHES_REDIS_DB")
-#
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-#         "LOCATION": CACHES_REDIS_URL,
-#         "OPTIONS": {
-#             "db": CACHES_REDIS_DB,
-#         },
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv("CACHES_REDIS_URL"),
+        "OPTIONS": {
+            "db": os.getenv("CACHES_REDIS_DB"),
+        },
+    }
+}
 
+
+# Настройка интеграции с Sentry
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DNS"),
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 1.0)),
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=float(os.getenv("SENTRY_PROFILES_SAMPLE_RATE", 1.0)),
+)

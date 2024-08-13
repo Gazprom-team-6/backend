@@ -99,8 +99,6 @@ class TeamEmployeeListSerializer(serializers.ModelSerializer):
 class TeamEmployeeChangeRoleSerializer(serializers.ModelSerializer):
     """Сериализатор для изменения роли пользователя в команде."""
 
-    team = serializers.ReadOnlyField()
-
     class Meta:
         model = GazpromUserTeam
-        fields = ["role", "employee", "team"]
+        fields = ["role", "employee"]

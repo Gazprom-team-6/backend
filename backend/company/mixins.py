@@ -13,9 +13,8 @@ class BaseViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "add_field":
             return AdditionalFieldSerializer
-        elif self.action == "add_metric":
+        else:
             return MetricSerializer
-        return super().get_serializer_class()
 
     def handle_additional_data(
             self,

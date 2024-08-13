@@ -76,8 +76,6 @@ class TeamViewSet(BaseViewSet):
             return TeamAddEmployeesSerializer
         elif self.action == "remove_employees":
             return TeamDeleteEmployeesSerializer
-        elif self.action == "list":
-            return TeamListSerializer
         elif self.action == "change_employee_role":
             return TeamEmployeeChangeRoleSerializer
         return super().get_serializer_class()
@@ -149,7 +147,7 @@ class TeamViewSet(BaseViewSet):
 
     @CHANGE_EMPLOYEE_ROLE_SCHEMA
     @action(
-        ["post"],
+        ["patch"],
         detail=True,
         url_path="change_employee_role"
     )
