@@ -37,6 +37,21 @@ services:
     volumes:
       - media:/app/media
 
+  flower:
+    build: ./backend/
+    entrypoint: celery
+    command: -A backend.celery_app.app flower
+    env_file: .env
+    links:
+      - redis
+    depends_on:
+      - redis
+    volumes:
+      - media:/app/media
+    ports:
+      - "5555:5555"
+
+
   nginx:
     build: ./nginx/
     depends_on:
