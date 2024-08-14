@@ -1,13 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.db.models import Prefetch
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (extend_schema, extend_schema_view,
-                                   OpenApiExample, OpenApiResponse,
-                                   PolymorphicProxySerializer)
-from rest_framework import filters, parsers, status, viewsets
+from drf_spectacular.utils import (extend_schema)
+from rest_framework import filters, parsers, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -15,7 +10,6 @@ from rest_framework.views import APIView
 
 from company.mixins import BaseViewSet
 from users.filters import GazpromUserFilter
-from users.models import Skill
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
 from users.schemas import (DELETE_AVATAR_SCHEMA, GAZPROMUSER_SCHEMA, ME_SCHEMA,
                            PASSWORD_RESET_VIEW_SCHEMA, UPLOAD_AVATAR_SCHEMA)
@@ -24,6 +18,7 @@ from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
                                EmployeePatchUserSerializer,
                                EmployeeWriteSuperuserSerializer,
                                PasswordResetSerializer)
+from users.tasks import send_reset_password_email
 
 User = get_user_model()
 
@@ -46,18 +41,13 @@ class PasswordResetView(APIView):
         user.save()
 
         # Отправка нового пароля по email
-        send_mail(
-            "Восстановление пароля",
-            f"Ваш новый пароль: {new_password}",
-            "no-reply@yourdomain.com",
-            [email],
-            fail_silently=False,
-        )
+        send_reset_password_email.delay(new_password, email)
 
         return Response(
             {"message": "Новый пароль отправлен на email"},
             status=status.HTTP_200_OK
         )
+
 
 @GAZPROMUSER_SCHEMA
 @extend_schema(tags=["users"])

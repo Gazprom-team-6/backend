@@ -11,7 +11,7 @@ router_v1.register("", views.UserViewSet, basename="users")
 
 
 urlpatterns = [
-    path("", include(router_v1.urls)),
     path("password-reset/", views.PasswordResetView.as_view()),
     path("auth/", include("djoser.urls.jwt")),
+    path("", include(router_v1.urls)),
 ]

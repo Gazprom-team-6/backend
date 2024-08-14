@@ -41,5 +41,6 @@ social-auth-core==4.5.4
 sqlparse==0.5.1
 uritemplate==4.1.1
 urllib3==2.2.2
-celery[redis]==5.2.7
+celery[redis]==5.4.0
 flower==2.0.0
+celery_singleton==0.3.1

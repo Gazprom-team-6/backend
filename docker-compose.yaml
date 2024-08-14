@@ -11,7 +11,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   redis:
-    image: redis:6.2.6
+    image: redis:7.4
 
   backend:
     build: ./backend/
@@ -28,29 +28,30 @@ services:
   worker:
     build: ./backend/
     entrypoint: celery
-    command: -A backend.celery_app.app worker --loglevel=info
+    command: -A backend.celery_app.app worker --loglevel=info -E
     env_file: .env
     links:
       - redis
     depends_on:
       - redis
+      - db
     volumes:
       - media:/app/media
 
   flower:
     build: ./backend/
-    entrypoint: celery
-    command: -A backend.celery_app.app flower
+    entrypoint: sh -c "sleep 10 && celery -A backend.celery_app.app flower"
     env_file: .env
     links:
       - redis
+      - worker
     depends_on:
       - redis
+      - worker
     volumes:
       - media:/app/media
     ports:
       - "5555:5555"
-
 
   nginx:
     build: ./nginx/

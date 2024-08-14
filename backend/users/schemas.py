@@ -126,7 +126,7 @@ GAZPROMUSER_SCHEMA = extend_schema_view(
 )
 
 PASSWORD_RESET_VIEW_SCHEMA = extend_schema(
-    tags=["usersauth"],
+    tags=["users"],
     request=PasswordResetSerializer,
     responses={
         200: OpenApiTypes.OBJECT,
