@@ -24,14 +24,12 @@ services:
     volumes:
       - static:/backend_static
       - media:/app/media
-      - ./backend/:/backend
 
   worker:
-    build:
-      context: .
-    hostname: worker
+    build: ./backend/
     entrypoint: celery
     command: -A celery_app.app worker --loglevel=info
+    env_file: .env
     volumes:
       - ./backend/:/backend
     links:

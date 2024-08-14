@@ -172,7 +172,7 @@ REST_FRAMEWORK = {
     'DATE_FORMAT': '%d-%m-%Y',
     'DATE_INPUT_FORMATS': ['%d-%m-%Y'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': int(os.getenv('PAGE_SIZE')),
+    'PAGE_SIZE': int(os.getenv('PAGE_SIZE', 5)),
 }
 
 SIMPLE_JWT = {
