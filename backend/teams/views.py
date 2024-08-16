@@ -1,3 +1,6 @@
+from functools import partial
+
+from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import (extend_schema)
@@ -17,6 +20,8 @@ from teams.serializers import (TeamAddEmployeesSerializer,
                                TeamEmployeeChangeRoleSerializer,
                                TeamEmployeeListSerializer, TeamGetSerializer,
                                TeamListSerializer, TeamWriteSerializer)
+from users.models import GazpromUser
+from users.tasks import send_add_to_team_mail, send_remove_from_team_mail
 
 
 @TEAM_SCHEMA
@@ -102,6 +107,7 @@ class TeamViewSet(BaseViewSet):
         )
 
     @ADD_EMPLOYEES_SCHEMA
+    @transaction.atomic
     @action(["post"], detail=True, url_path="add_employees")
     def add_employees(self, request, pk=None):
         """Добавление сотрудников в команду."""
@@ -113,6 +119,11 @@ class TeamViewSet(BaseViewSet):
         serializer.is_valid(raise_exception=True)
         employee_ids = serializer.validated_data["employee_ids"]
         role = serializer.validated_data["role"]
+        # Получаем список email всех сотрудников, добавляемых в команду
+        employees_id_email = GazpromUser.objects.filter(
+            id__in=employee_ids
+        ).values_list("id", "email")
+
         GazpromUserTeam.objects.bulk_create(
             [
                 GazpromUserTeam(
@@ -123,23 +134,53 @@ class TeamViewSet(BaseViewSet):
                 for employee_id in employee_ids
             ]
         )
+
+        # Отправка уведомлений после успешного завершения транзакции
+        for employee in employees_id_email:
+            transaction.on_commit(
+                partial(
+                    send_add_to_team_mail.delay,
+                    team_name=team.team_name,
+                    role=role,
+                    email=employee[1]
+                )
+            )
+
         return Response(
             serializer.data,
             status=status.HTTP_200_OK
         )
 
     @REMOVE_EMPLOYEES_SCHEMA
-    @action(["delete"], detail=True, url_path="remove_employees")
+    @transaction.atomic
+    @action(["post"], detail=True, url_path="remove_employees")
     def remove_employees(self, request, pk=None):
         """Удаление сотрудников из команды."""
         team = self.get_object()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         employee_ids = serializer.validated_data["employee_ids"]
+
+        # Получаем список email всех сотрудников, удаляемых из команды
+        employees_id_email = GazpromUser.objects.filter(
+            id__in=employee_ids
+        ).values_list("id", "email")
+
         GazpromUserTeam.objects.filter(
             team=team,
             employee_id__in=employee_ids
         ).delete()
+
+        # Отправка уведомлений после успешного завершения транзакции
+        for employee in employees_id_email:
+            transaction.on_commit(
+                partial(
+                    send_remove_from_team_mail.delay,
+                    team_name=team.team_name,
+                    email=employee[1]
+                )
+            )
+
         return Response(
             serializer.data,
             status=status.HTTP_204_NO_CONTENT
@@ -169,5 +210,3 @@ class TeamViewSet(BaseViewSet):
         gazpromuserteam.role = role
         gazpromuserteam.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-

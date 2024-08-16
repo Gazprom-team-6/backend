@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_spectacular',
     'django_filters',
-    'cachalot',
+    # 'cachalot',
 
     'users.apps.UsersConfig',
     'company.apps.CompanyConfig',
@@ -228,15 +228,15 @@ LOGGING = {
 }
 
 # Настройки кэширования
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.getenv("CACHES_REDIS_URL"),
-        "OPTIONS": {
-            "db": os.getenv("CACHES_REDIS_DB"),
-        },
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": os.getenv("CACHES_REDIS_URL"),
+#         "OPTIONS": {
+#             "db": os.getenv("CACHES_REDIS_DB"),
+#         },
+#     }
+# }
 
 
 # Настройка интеграции с Sentry

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import Count
 from drf_spectacular.utils import (extend_schema)
 from rest_framework import filters, status
@@ -79,6 +80,7 @@ class DepartmentViewSet(BaseViewSet):
         return super().get_serializer_class()
 
     @EMPLOYEES_SCHEMA
+    @transaction.atomic
     @action(["post", "delete"], detail=True, url_path="employees")
     def employees(self, request, pk=None):
         """Добавление и удаление сотрудников из департамента."""
