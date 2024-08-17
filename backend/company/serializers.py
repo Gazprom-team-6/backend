@@ -16,10 +16,7 @@ class AddEmployeesBaseSerializer(serializers.Serializer):
     def validate_employee_ids(self, value):
         """Проверяем, что сотрудники с переданными ID существуют в БД."""
         existing_ids = set(
-            User.objects.filter(id__in=value).values_list(
-                'id',
-                flat=True
-            )
+            User.objects.filter(id__in=value).values_list("id", flat=True)
         )
         provided_ids = set(value)
         # Получаем id сотрудников, которых не существует в БД

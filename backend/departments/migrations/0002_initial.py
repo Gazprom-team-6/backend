@@ -10,23 +10,39 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('departments', '0001_initial'),
+        ("departments", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='department',
-            name='departament_owner',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='Руководитель департамента'),
+            model_name="department",
+            name="departament_owner",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Руководитель департамента",
+            ),
         ),
         migrations.AddField(
-            model_name='department',
-            name='parent_department',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children_departament', to='departments.department', verbose_name='Родительский департамент'),
+            model_name="department",
+            name="parent_department",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="children_departament",
+                to="departments.department",
+                verbose_name="Родительский департамент",
+            ),
         ),
         migrations.AddIndex(
-            model_name='department',
-            index=models.Index(fields=['departament_description'], name='departments_departa_7b3d75_idx'),
+            model_name="department",
+            index=models.Index(
+                fields=["departament_description"],
+                name="departments_departa_7b3d75_idx",
+            ),
         ),
     ]

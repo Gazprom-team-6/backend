@@ -9,33 +9,68 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('products', '0001_initial'),
+        ("products", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GazpromUserTeam',
+            name="GazpromUserTeam",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(max_length=100, verbose_name='Роль сотрудника в команде')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        max_length=100, verbose_name="Роль сотрудника в команде"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'роль сотрудника в команде',
-                'verbose_name_plural': 'Роли сотрудников в командах',
-                'default_related_name': 'gazpromuserteam',
+                "verbose_name": "роль сотрудника в команде",
+                "verbose_name_plural": "Роли сотрудников в командах",
+                "default_related_name": "gazpromuserteam",
             },
         ),
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('team_name', models.CharField(max_length=250, unique=True, verbose_name='Название')),
-                ('product', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='products.product', verbose_name='Родительский продукт')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "team_name",
+                    models.CharField(
+                        max_length=250, unique=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="products.product",
+                        verbose_name="Родительский продукт",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'команда',
-                'verbose_name_plural': 'Команды',
-                'default_related_name': 'team',
+                "verbose_name": "команда",
+                "verbose_name_plural": "Команды",
+                "default_related_name": "team",
             },
         ),
     ]

@@ -10,22 +10,32 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('products', '0001_initial'),
+        ("products", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='product_manager',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='Менеджер продукта'),
+            model_name="product",
+            name="product_manager",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Менеджер продукта",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='productcomponent',
-            constraint=models.UniqueConstraint(fields=('product', 'component'), name='unique_product_component'),
+            model_name="productcomponent",
+            constraint=models.UniqueConstraint(
+                fields=("product", "component"), name="unique_product_component"
+            ),
         ),
         migrations.AddIndex(
-            model_name='product',
-            index=models.Index(fields=['product_description'], name='products_pr_product_8d4979_idx'),
+            model_name="product",
+            index=models.Index(
+                fields=["product_description"], name="products_pr_product_8d4979_idx"
+            ),
         ),
     ]

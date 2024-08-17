@@ -1,11 +1,9 @@
 from rest_framework import serializers
 
 from company.serializers import AddEmployeesBaseSerializer
-from products.serializers import (ProductBaseSerializer,
-                                  ProductShortReadSerializer)
+from products.serializers import ProductShortReadSerializer
 from teams.models import GazpromUserTeam, Team
-from users.serializers import (EmployeeIdFIOGetSerializer,
-                               EmployeeShortGetSerializer)
+from users.serializers import EmployeeShortGetSerializer
 
 
 class TeamBaseSerializer(serializers.ModelSerializer):
@@ -34,8 +32,7 @@ class TeamListSerializer(TeamBaseSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "team_name", "team_manager", "product",
-                  "employee_count"]
+        fields = ["id", "team_name", "team_manager", "product", "employee_count"]
 
 
 class TeamGetSerializer(TeamBaseSerializer):
@@ -47,8 +44,7 @@ class TeamGetSerializer(TeamBaseSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "team_name", "team_manager", "product",
-                  "employee_count"]
+        fields = ["id", "team_name", "team_manager", "product", "employee_count"]
 
 
 class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
@@ -60,23 +56,23 @@ class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
         """
         Проверяем, есть ли переданные сотрудники уже в команде.
         """
-        employee_ids = attrs['employee_ids']
-        team = self.context['team']
+        employee_ids = attrs["employee_ids"]
+        team = self.context["team"]
 
         # Получаем список id сотрудников, которые уже есть в команде
-        already_in_team = GazpromUserTeam.objects.filter(
-            employee_id__in=employee_ids,
-            team=team,
-        ).select_related("employee").values_list(
-            'employee__employee_fio',
-            flat=True
+        already_in_team = (
+            GazpromUserTeam.objects.filter(
+                employee_id__in=employee_ids,
+                team=team,
+            )
+            .select_related("employee")
+            .values_list("employee__employee_fio", flat=True)
         )
         # Если такие сотрудники есть, то возвращаем ошибку и список ФИО
         # сотрудников
         if already_in_team:
             raise serializers.ValidationError(
-                f"Следующие сотрудники уже в команде: "
-                f"{', '.join(already_in_team)}"
+                f"Следующие сотрудники уже в команде: " f"{', '.join(already_in_team)}"
             )
 
         return attrs
@@ -84,6 +80,26 @@ class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
 
 class TeamDeleteEmployeesSerializer(AddEmployeesBaseSerializer):
     """Сериализатор для удаления сотрудников из команды."""
+
+    def validate(self, attrs):
+        """
+        Проверяем, есть ли переданные сотрудники в команде.
+        """
+        employee_ids = attrs["employee_ids"]
+        team = self.context.get("team")
+
+        # Получаем список id сотрудников, которые есть в команде
+        employees_in_team = GazpromUserTeam.objects.filter(
+            employee_id__in=employee_ids,
+            team=team,
+        ).values_list("employee_id", flat=True)
+        # Проверяем, есть ли сотрудники, которых нет в команде:
+        if not_in_team_ids := set(employee_ids) - set(employees_in_team):
+            raise serializers.ValidationError(
+                f"Следующих сотрудников нет в команде: " f"{not_in_team_ids}"
+            )
+
+        return attrs
 
 
 class TeamEmployeeListSerializer(serializers.ModelSerializer):

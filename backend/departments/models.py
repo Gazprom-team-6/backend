@@ -10,9 +10,7 @@ class Department(models.Model):
     """Модель департамента (отдела)."""
 
     departament_name = models.CharField(
-        max_length=250,
-        verbose_name="Название",
-        unique=True
+        max_length=250, verbose_name="Название", unique=True
     )
     departament_description = models.TextField(verbose_name="Описание отдела")
     departament_owner = models.ForeignKey(
@@ -23,12 +21,12 @@ class Department(models.Model):
         blank=True,
     )
     parent_department = models.ForeignKey(
-        to='self',
+        to="self",
         verbose_name="Родительский департамент",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='children_departament'
+        related_name="children_departament",
     )
 
     class Meta:

@@ -13,14 +13,9 @@ class Component(models.Model):
         verbose_name="Название",
         unique=True,
     )
-    component_type = models.CharField(
-        max_length=150,
-        verbose_name="Тип"
-    )
+    component_type = models.CharField(max_length=150, verbose_name="Тип")
     component_link = models.URLField(
-        verbose_name="Ссылка на документацию",
-        null=True,
-        blank=True
+        verbose_name="Ссылка на документацию", null=True, blank=True
     )
     component_owner = models.ForeignKey(
         to=User,
@@ -38,9 +33,7 @@ class Component(models.Model):
         null=True,
         blank=True,
     )
-    component_description = models.TextField(
-        verbose_name="Описание"
-    )
+    component_description = models.TextField(verbose_name="Описание")
 
     class Meta:
         verbose_name = "компонент"

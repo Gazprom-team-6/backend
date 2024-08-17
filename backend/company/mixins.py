@@ -16,13 +16,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         else:
             return MetricSerializer
 
-    def handle_additional_data(
-            self,
-            request,
-            pk,
-            serializer_class,
-            model_class
-    ):
+    def handle_additional_data(self, request, pk, serializer_class, model_class):
         """Обработчик добавления дополнительных данных."""
         model_object = self.get_object()
         serializer = serializer_class(data=request.data)
@@ -30,14 +24,11 @@ class BaseViewSet(viewsets.ModelViewSet):
         name = serializer.validated_data["name"]
         description = serializer.validated_data["description"]
         additional_data = model_class(
-            content_object=model_object,
-            name=name,
-            description=description
+            content_object=model_object, name=name, description=description
         )
         additional_data.save()
         return Response(
-            serializer_class(additional_data).data,
-            status=status.HTTP_200_OK
+            serializer_class(additional_data).data, status=status.HTTP_200_OK
         )
 
     @ADD_FIELD_SCHEMA
@@ -48,7 +39,7 @@ class BaseViewSet(viewsets.ModelViewSet):
             request,
             pk,
             serializer_class=AdditionalFieldSerializer,
-            model_class=AdditionalField
+            model_class=AdditionalField,
         )
 
     @ADD_METRIC_SCHEMA
@@ -56,10 +47,7 @@ class BaseViewSet(viewsets.ModelViewSet):
     def add_metric(self, request, pk=None):
         """Добавление метрики."""
         return self.handle_additional_data(
-            request,
-            pk,
-            serializer_class=MetricSerializer,
-            model_class=Metric
+            request, pk, serializer_class=MetricSerializer, model_class=Metric
         )
 
     def get_paginated_data(self, request, queryset):
@@ -67,16 +55,12 @@ class BaseViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(
-                page,
-                many=True,
-                context={"request": request}
+                page, many=True, context={"request": request}
             )
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(
-            queryset,
-            many=True,
-            context={"request": request}
+            queryset, many=True, context={"request": request}
         )
         return Response(serializer.data)
 
@@ -85,6 +69,6 @@ class BaseViewSet(viewsets.ModelViewSet):
         if not self.get_queryset().filter(id=pk).exists():
             return Response(
                 {"detail": "No Objects matches the given query."},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
         return None

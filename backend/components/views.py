@@ -1,13 +1,12 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import (extend_schema)
+from drf_spectacular.utils import extend_schema
 from rest_framework import filters
 
 from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from components.models import Component
 from components.schemas import COMPONENT_SCHEMA
-from components.serializers import (ComponentReadSerializer,
-                                    ComponentWriteSerializer)
+from components.serializers import ComponentReadSerializer, ComponentWriteSerializer
 
 
 @COMPONENT_SCHEMA
@@ -15,10 +14,19 @@ from components.serializers import (ComponentReadSerializer,
 class ComponentViewSet(BaseViewSet):
     """Представление для компонента."""
 
-    permission_classes = [IsSuperuserOrReadOnly, ]
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
-    search_fields = ("id", "component_name", "component_owner__employee_fio",
-                     "component_description")
+    permission_classes = [
+        IsSuperuserOrReadOnly,
+    ]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+    search_fields = (
+        "id",
+        "component_name",
+        "component_owner__employee_fio",
+        "component_description",
+    )
     filterset_fields = ("component_type",)
 
     def get_queryset(self):

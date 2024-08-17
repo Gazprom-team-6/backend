@@ -1,5 +1,6 @@
 from celery import shared_task
 from celery_singleton import Singleton
+from django.conf import settings
 from django.core.mail import send_mail
 
 
@@ -7,33 +8,33 @@ from django.core.mail import send_mail
 def send_reset_password_email(new_password, email):
     """Отправка email для восстановления пароля."""
     send_mail(
-        "Восстановление пароля",
-        f"Ваш новый пароль: {new_password}",
-        "sir.petri-petrov@yandex.ru",
-        [email],
-        fail_silently=False,
-    )
-
-@shared_task(base=Singleton)
-def send_add_to_team_mail(team_name, role, email):
-    """Отправка email с уведомлением о добавлении сотрудника в команду."""
-    send_mail(
-        f"Вас добавили в команду {team_name}",
-        f"Вас добавили в команду {team_name}. "
-        f"Ваша роль в команде: {role}",
-        "sir.petri-petrov@yandex.ru",
-        [email],
+        subject="Восстановление пароля",
+        message=f"Ваш новый пароль: {new_password}",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
         fail_silently=False,
     )
 
 
 @shared_task(base=Singleton)
-def send_remove_from_team_mail(team_name, email):
+def send_add_to_team_mail(team_name, emails):
     """Отправка email с уведомлением об удалении сотрудника из команды."""
     send_mail(
-        f"Вас исключили из команды {team_name}",
-        f"Вас исключили из команды {team_name}. ",
-        "sir.petri-petrov@yandex.ru",
-        [email],
+        subject=f"Вас добавили в команду {team_name}",
+        message=f"Вас добавили в команду {team_name}",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=emails,
+        fail_silently=False,
+    )
+
+
+@shared_task(base=Singleton)
+def send_remove_from_team_mail(team_name, emails):
+    """Отправка email с уведомлением об удалении сотрудника из команды."""
+    send_mail(
+        subject=f"Вас исключили из команды {team_name}",
+        message=f"Вас исключили из команды {team_name}",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=emails,
         fail_silently=False,
     )

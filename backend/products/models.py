@@ -11,9 +11,7 @@ class Product(models.Model):
     """Модель продукта."""
 
     product_name = models.CharField(
-        max_length=250,
-        verbose_name="Название",
-        unique=True
+        max_length=250, verbose_name="Название", unique=True
     )
     product_manager = models.ForeignKey(
         to=User,
@@ -24,18 +22,15 @@ class Product(models.Model):
     )
     product_description = models.TextField(verbose_name="Описание продукта")
     parent_product = models.ForeignKey(
-        to='self',
+        to="self",
         verbose_name="Родительский продукт",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='children_product'
+        related_name="children_product",
     )
     components = models.ManyToManyField(
-        to=Component,
-        through="ProductComponent",
-        verbose_name="Компонент",
-        blank=True
+        to=Component, through="ProductComponent", verbose_name="Компонент", blank=True
     )
 
     class Meta:
@@ -61,7 +56,6 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
 
-
 class ProductComponent(models.Model):
     """Промежуточная модель для связи продуктов и компонентов."""
 
@@ -79,8 +73,7 @@ class ProductComponent(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['product', 'component'],
-                name='unique_product_component'
+                fields=["product", "component"], name="unique_product_component"
             )
         ]
         verbose_name = "компонент продукта"

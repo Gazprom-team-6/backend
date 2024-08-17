@@ -11,27 +11,43 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('teams', '0001_initial'),
+        ("teams", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='team',
-            name='team_manager',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='Менеджер команды'),
+            model_name="team",
+            name="team_manager",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Менеджер команды",
+            ),
         ),
         migrations.AddField(
-            model_name='gazpromuserteam',
-            name='employee',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Сотрудник'),
+            model_name="gazpromuserteam",
+            name="employee",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Сотрудник",
+            ),
         ),
         migrations.AddField(
-            model_name='gazpromuserteam',
-            name='team',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='teams.team', verbose_name='Команда'),
+            model_name="gazpromuserteam",
+            name="team",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="teams.team",
+                verbose_name="Команда",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='gazpromuserteam',
-            constraint=models.UniqueConstraint(fields=('employee', 'team'), name='one_employee_role_in_one_team'),
+            model_name="gazpromuserteam",
+            constraint=models.UniqueConstraint(
+                fields=("employee", "team"), name="one_employee_role_in_one_team"
+            ),
         ),
     ]

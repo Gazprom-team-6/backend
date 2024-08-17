@@ -9,44 +9,94 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('components', '0001_initial'),
+        ("components", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('product_name', models.CharField(max_length=250, unique=True, verbose_name='Название')),
-                ('product_description', models.TextField(verbose_name='Описание продукта')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "product_name",
+                    models.CharField(
+                        max_length=250, unique=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "product_description",
+                    models.TextField(verbose_name="Описание продукта"),
+                ),
             ],
             options={
-                'verbose_name': 'продукт',
-                'verbose_name_plural': 'Продукты',
-                'default_related_name': 'product',
+                "verbose_name": "продукт",
+                "verbose_name_plural": "Продукты",
+                "default_related_name": "product",
             },
         ),
         migrations.CreateModel(
-            name='ProductComponent',
+            name="ProductComponent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('component', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='components.component', verbose_name='Компонент')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.product', verbose_name='Продукт')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "component",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="components.component",
+                        verbose_name="Компонент",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.product",
+                        verbose_name="Продукт",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'компонент продукта',
-                'verbose_name_plural': 'Компоненты продуктов',
-                'default_related_name': 'productcomponent',
+                "verbose_name": "компонент продукта",
+                "verbose_name_plural": "Компоненты продуктов",
+                "default_related_name": "productcomponent",
             },
         ),
         migrations.AddField(
-            model_name='product',
-            name='components',
-            field=models.ManyToManyField(blank=True, through='products.ProductComponent', to='components.component', verbose_name='Компонент'),
+            model_name="product",
+            name="components",
+            field=models.ManyToManyField(
+                blank=True,
+                through="products.ProductComponent",
+                to="components.component",
+                verbose_name="Компонент",
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='parent_product',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children_product', to='products.product', verbose_name='Родительский продукт'),
+            model_name="product",
+            name="parent_product",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="children_product",
+                to="products.product",
+                verbose_name="Родительский продукт",
+            ),
         ),
     ]

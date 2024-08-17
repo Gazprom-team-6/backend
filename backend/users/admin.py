@@ -16,12 +16,23 @@ class GazpromUserAdmin(admin.ModelAdmin):
     """Отображение пользователей."""
 
     list_display = ["id", "employee_fio"]
-    fields = ["employee_fio", "email", "employee_position",
-              "employee_date_of_birth", "employee_date_of_hire",
-              "employee_avatar", "employee_telegram", "employee_telephone",
-              "employee_type_job", "employee_status", "employee_location",
-              "employee_grade", "employee_description",
-              "is_employee_outsource", "employee_departament"]
+    fields = [
+        "employee_fio",
+        "email",
+        "employee_position",
+        "employee_date_of_birth",
+        "employee_date_of_hire",
+        "employee_avatar",
+        "employee_telegram",
+        "employee_telephone",
+        "employee_type_job",
+        "employee_status",
+        "employee_location",
+        "employee_grade",
+        "employee_description",
+        "is_employee_outsource",
+        "employee_departament",
+    ]
     inlines = [AdditionalFieldInline, MetricInline, SkillsInline]
 
 

@@ -44,8 +44,12 @@ class ComponentWriteSerializer(serializers.ModelSerializer):
         """Проверяем, что заместитель и руководитель это разные люди."""
         component_owner = attrs.get("component_owner")
         component_second_owner = attrs.get("component_second_owner")
-        if (component_owner and component_second_owner and
-                component_second_owner == component_second_owner):
-            raise serializers.ValidationError("Заместитель и руководитель "
-                                              "не могут быть одним человеком")
+        if (
+            component_owner
+            and component_second_owner
+            and component_second_owner == component_second_owner
+        ):
+            raise serializers.ValidationError(
+                "Заместитель и руководитель " "не могут быть одним человеком"
+            )
         return attrs

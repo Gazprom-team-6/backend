@@ -7,23 +7,43 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Component',
+            name="Component",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('component_name', models.CharField(max_length=250, unique=True, verbose_name='Название')),
-                ('component_type', models.CharField(max_length=150, verbose_name='Тип')),
-                ('component_link', models.URLField(blank=True, null=True, verbose_name='Ссылка на документацию')),
-                ('component_description', models.TextField(verbose_name='Описание')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "component_name",
+                    models.CharField(
+                        max_length=250, unique=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "component_type",
+                    models.CharField(max_length=150, verbose_name="Тип"),
+                ),
+                (
+                    "component_link",
+                    models.URLField(
+                        blank=True, null=True, verbose_name="Ссылка на документацию"
+                    ),
+                ),
+                ("component_description", models.TextField(verbose_name="Описание")),
             ],
             options={
-                'verbose_name': 'компонент',
-                'verbose_name_plural': 'Компоненты',
-                'default_related_name': 'component',
+                "verbose_name": "компонент",
+                "verbose_name_plural": "Компоненты",
+                "default_related_name": "component",
             },
         ),
     ]

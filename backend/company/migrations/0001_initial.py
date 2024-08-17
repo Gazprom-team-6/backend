@@ -9,46 +9,80 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Metric',
+            name="Metric",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField()),
-                ('name', models.CharField(max_length=255, verbose_name='Название')),
-                ('description', models.TextField(verbose_name='Содержание метрики')),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField()),
+                ("name", models.CharField(max_length=255, verbose_name="Название")),
+                ("description", models.TextField(verbose_name="Содержание метрики")),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'метрика',
-                'verbose_name_plural': 'Метрики',
-                'default_related_name': 'metric',
+                "verbose_name": "метрика",
+                "verbose_name_plural": "Метрики",
+                "default_related_name": "metric",
             },
         ),
         migrations.CreateModel(
-            name='AdditionalField',
+            name="AdditionalField",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField()),
-                ('name', models.CharField(max_length=255, verbose_name='Название')),
-                ('description', models.TextField(verbose_name='Содержание поля')),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("object_id", models.PositiveIntegerField()),
+                ("name", models.CharField(max_length=255, verbose_name="Название")),
+                ("description", models.TextField(verbose_name="Содержание поля")),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'дополнительное поле',
-                'verbose_name_plural': 'Дополнительные поля',
-                'default_related_name': 'additionalfield',
+                "verbose_name": "дополнительное поле",
+                "verbose_name_plural": "Дополнительные поля",
+                "default_related_name": "additionalfield",
             },
         ),
         migrations.AddIndex(
-            model_name='metric',
-            index=models.Index(fields=['content_type', 'object_id'], name='company_met_content_24f8ca_idx'),
+            model_name="metric",
+            index=models.Index(
+                fields=["content_type", "object_id"],
+                name="company_met_content_24f8ca_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='additionalfield',
-            index=models.Index(fields=['content_type', 'object_id'], name='company_add_content_cdcf27_idx'),
+            model_name="additionalfield",
+            index=models.Index(
+                fields=["content_type", "object_id"],
+                name="company_add_content_cdcf27_idx",
+            ),
         ),
     ]

@@ -7,11 +7,7 @@ app_name = "component"
 
 router_v1 = routers.DefaultRouter()
 
-router_v1.register(
-    "component",
-    views.ComponentViewSet,
-    basename="component"
-)
+router_v1.register("component", views.ComponentViewSet, basename="component")
 
 urlpatterns = [
     path("", include(router_v1.urls)),

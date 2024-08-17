@@ -7,21 +7,36 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Department',
+            name="Department",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('departament_name', models.CharField(max_length=250, unique=True, verbose_name='Название')),
-                ('departament_description', models.TextField(verbose_name='Описание отдела')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "departament_name",
+                    models.CharField(
+                        max_length=250, unique=True, verbose_name="Название"
+                    ),
+                ),
+                (
+                    "departament_description",
+                    models.TextField(verbose_name="Описание отдела"),
+                ),
             ],
             options={
-                'verbose_name': 'департамент',
-                'verbose_name_plural': 'Департаменты',
-                'default_related_name': 'departament',
+                "verbose_name": "департамент",
+                "verbose_name_plural": "Департаменты",
+                "default_related_name": "departament",
             },
         ),
     ]

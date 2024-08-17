@@ -28,8 +28,7 @@ class DepartmentWriteSerializer(DepartmentBaseSerializer):
         """
         if self.instance and value == self.instance:
             raise serializers.ValidationError(
-                "Нельзя назначить родительским "
-                "департаментом сам департамент."
+                "Нельзя назначить родительским " "департаментом сам департамент."
             )
         return value
 
@@ -43,9 +42,14 @@ class DepartmentReadSerializer(DepartmentBaseSerializer):
 
     class Meta:
         model = Department
-        fields = ["id", "departament_name", "departament_owner",
-                  "departament_description", "parent_department",
-                  "employee_count"]
+        fields = [
+            "id",
+            "departament_name",
+            "departament_owner",
+            "departament_description",
+            "parent_department",
+            "employee_count",
+        ]
 
 
 class DepartmentChildrenReadSerializer(DepartmentBaseSerializer):
@@ -56,8 +60,13 @@ class DepartmentChildrenReadSerializer(DepartmentBaseSerializer):
 
     class Meta:
         model = Department
-        fields = ["id", "departament_name", "departament_owner",
-                  "departament_description", "employee_count"]
+        fields = [
+            "id",
+            "departament_name",
+            "departament_owner",
+            "departament_description",
+            "employee_count",
+        ]
 
 
 class DepartmentAddEmployeesSerializer(AddEmployeesBaseSerializer):

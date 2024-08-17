@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from components.serializers import (ComponentReadShortSerializer)
+from components.serializers import ComponentReadShortSerializer
 from products.models import Product
 from users.serializers import EmployeeShortGetSerializer
 
@@ -28,8 +28,7 @@ class ProductWriteSerializer(ProductBaseSerializer):
         """
         if self.instance and value == self.instance:
             raise serializers.ValidationError(
-                "Нельзя назначить родительским "
-                "продуктом сам продукт."
+                "Нельзя назначить родительским " "продуктом сам продукт."
             )
         return value
 
@@ -65,8 +64,13 @@ class ProductRootSerializer(ProductBaseSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "product_name", "product_description",
-                  "product_manager", "components"]
+        fields = [
+            "id",
+            "product_name",
+            "product_description",
+            "product_manager",
+            "components",
+        ]
 
 
 class ProductChildrenReadSerializer(ProductBaseSerializer):
@@ -76,8 +80,7 @@ class ProductChildrenReadSerializer(ProductBaseSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "product_name", "product_manager",
-                  "product_description"]
+        fields = ["id", "product_name", "product_manager", "product_description"]
 
 
 class ProductShortReadSerializer(ProductBaseSerializer):
@@ -85,5 +88,10 @@ class ProductShortReadSerializer(ProductBaseSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "product_name", "product_manager",
-                  "product_description", "parent_product"]
+        fields = [
+            "id",
+            "product_name",
+            "product_manager",
+            "product_description",
+            "parent_product",
+        ]

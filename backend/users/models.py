@@ -4,8 +4,7 @@ from django.db.models import Q
 
 from users.constants import EMPLOYEE_STATUS, GRADES, JOB_TYPES
 from users.manager import GazpromUserManager
-from users.validators import (phone_regex, validate_birth_date,
-                              validate_hire_date)
+from users.validators import phone_regex, validate_birth_date, validate_hire_date
 
 
 class GazpromUser(AbstractUser):
@@ -34,19 +33,16 @@ class GazpromUser(AbstractUser):
         verbose_name="Дата рождения",
         validators=[validate_birth_date],
         null=True,
-        blank=True
+        blank=True,
     )
     employee_date_of_hire = models.DateField(
         verbose_name="Дата найма",
         validators=[validate_hire_date],
         null=True,
-        blank=True
+        blank=True,
     )
     employee_avatar = models.ImageField(
-        verbose_name="Аватар",
-        upload_to='avatars/',
-        null=True,
-        blank=True
+        verbose_name="Аватар", upload_to="avatars/", null=True, blank=True
     )
     employee_telegram = models.CharField(
         verbose_name="Телеграм",
@@ -66,32 +62,23 @@ class GazpromUser(AbstractUser):
         choices=JOB_TYPES,
         max_length=50,
         null=True,
-        blank=True
+        blank=True,
     )
     employee_status = models.CharField(
         verbose_name="Статус",
         choices=EMPLOYEE_STATUS,
         max_length=50,
         null=True,
-        blank=True
+        blank=True,
     )
     employee_location = models.CharField(
-        verbose_name="Локация",
-        max_length=300,
-        null=True,
-        blank=True
+        verbose_name="Локация", max_length=300, null=True, blank=True
     )
     employee_grade = models.CharField(
-        verbose_name="Грейд",
-        choices=GRADES,
-        max_length=50,
-        null=True,
-        blank=True
+        verbose_name="Грейд", choices=GRADES, max_length=50, null=True, blank=True
     )
     employee_description = models.TextField(
-        verbose_name="Биография",
-        null=True,
-        blank=True
+        verbose_name="Биография", null=True, blank=True
     )
     is_employee_outsource = models.BooleanField(
         verbose_name="Outsource",
@@ -102,17 +89,14 @@ class GazpromUser(AbstractUser):
         default=False,
     )
     skills = models.ManyToManyField(
-        to="Skill",
-        through="EmployeeSkill",
-        verbose_name="Навыки",
-        blank=True
+        to="Skill", through="EmployeeSkill", verbose_name="Навыки", blank=True
     )
     employee_departament = models.ForeignKey(
         to="departments.Department",
         verbose_name="Департамент",
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
     )
     username = None
 
@@ -130,13 +114,13 @@ class GazpromUser(AbstractUser):
         ]
         constraints = [
             models.UniqueConstraint(
-                fields=['employee_telegram'],
-                name='unique_employee_telegram',
+                fields=["employee_telegram"],
+                name="unique_employee_telegram",
                 condition=~Q(employee_telegram=None),
             ),
             models.UniqueConstraint(
-                fields=['employee_telephone'],
-                name='unique_employee_telephone',
+                fields=["employee_telephone"],
+                name="unique_employee_telephone",
                 condition=~Q(employee_telephone=None),
             ),
         ]
@@ -167,21 +151,14 @@ class EmployeeSkill(models.Model):
     """Промежуточная модель для связи сотрудника и навыков."""
 
     employee = models.ForeignKey(
-        to=GazpromUser,
-        verbose_name="Сотрудник",
-        on_delete=models.CASCADE
+        to=GazpromUser, verbose_name="Сотрудник", on_delete=models.CASCADE
     )
-    skill = models.ForeignKey(
-        to=Skill,
-        verbose_name="Навык",
-        on_delete=models.CASCADE
-    )
+    skill = models.ForeignKey(to=Skill, verbose_name="Навык", on_delete=models.CASCADE)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['employee', 'skill'],
-                name='unique_employee_skill'
+                fields=["employee", "skill"], name="unique_employee_skill"
             )
         ]
         verbose_name = "навык сотрудника"

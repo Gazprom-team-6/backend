@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import (extend_schema)
+from drf_spectacular.utils import extend_schema
 from rest_framework import filters, parsers, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -11,13 +11,21 @@ from rest_framework.views import APIView
 from company.mixins import BaseViewSet
 from users.filters import GazpromUserFilter
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
-from users.schemas import (DELETE_AVATAR_SCHEMA, GAZPROMUSER_SCHEMA, ME_SCHEMA,
-                           PASSWORD_RESET_VIEW_SCHEMA, UPLOAD_AVATAR_SCHEMA)
-from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
-                               EmployeeListSerializer,
-                               EmployeePatchUserSerializer,
-                               EmployeeWriteSuperuserSerializer,
-                               PasswordResetSerializer)
+from users.schemas import (
+    DELETE_AVATAR_SCHEMA,
+    GAZPROMUSER_SCHEMA,
+    ME_SCHEMA,
+    PASSWORD_RESET_VIEW_SCHEMA,
+    UPLOAD_AVATAR_SCHEMA,
+)
+from users.serializers import (
+    AvatarUploadSerializer,
+    EmployeeGetSerializer,
+    EmployeeListSerializer,
+    EmployeePatchUserSerializer,
+    EmployeeWriteSuperuserSerializer,
+    PasswordResetSerializer,
+)
 from users.tasks import send_reset_password_email
 
 User = get_user_model()
@@ -44,8 +52,7 @@ class PasswordResetView(APIView):
         send_reset_password_email.delay(new_password, email)
 
         return Response(
-            {"message": "Новый пароль отправлен на email"},
-            status=status.HTTP_200_OK
+            {"message": "Новый пароль отправлен на email"}, status=status.HTTP_200_OK
         )
 
 
@@ -56,7 +63,10 @@ class UserViewSet(BaseViewSet):
 
     queryset = User.objects.all()
     http_method_names = ("get", "post", "patch", "delete")
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
     search_fields = (
         "id",
         "employee_fio",
@@ -68,7 +78,7 @@ class UserViewSet(BaseViewSet):
         "employee_grade",
         "employee_location",
         "gazpromuserteam__team__team_name",
-        "skills__name"
+        "skills__name",
     )
     filterset_class = GazpromUserFilter
 
@@ -79,9 +89,7 @@ class UserViewSet(BaseViewSet):
             return (IsSuperuser(),)
         # Доступ к редактированию профиля, загрузке и удалению аватара
         # разрешаем только суперпользователю и владельцу профиля
-        elif self.action in (
-                "partial_update", "upload_avatar", "delete_avatar"
-        ):
+        elif self.action in ("partial_update", "upload_avatar", "delete_avatar"):
             return (IsSuperuserOrProfileOwner(),)
         else:
             return (IsAuthenticated(),)
@@ -112,16 +120,12 @@ class UserViewSet(BaseViewSet):
         detail=True,
         methods=["patch"],
         url_path="upload-avatar",
-        parser_classes=[parsers.MultiPartParser]
+        parser_classes=[parsers.MultiPartParser],
     )
     def upload_avatar(self, request, pk=None):
         """Добавление аватара пользователя."""
         user = self.get_object()
-        serializer = self.get_serializer(
-            user,
-            data=request.data,
-            partial=True
-        )
+        serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

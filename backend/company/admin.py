@@ -6,12 +6,14 @@ from company.models import AdditionalField, Metric
 
 class AdditionalFieldInline(GenericTabularInline):
     """Добавляем дополнительные поля в админку."""
+
     model = AdditionalField
     extra = 1
 
 
 class MetricInline(GenericTabularInline):
     """Добавляем дополнительные метрики в админку."""
+
     model = Metric
     extra = 1
 

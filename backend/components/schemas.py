@@ -1,6 +1,5 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (extend_schema, extend_schema_view,
-                                   OpenApiParameter)
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 COMPONENT_SCHEMA = extend_schema_view(
     list=extend_schema(
@@ -22,8 +21,8 @@ COMPONENT_SCHEMA = extend_schema_view(
             OpenApiParameter(
                 name="search",
                 description="Поиск продукта по полям: "
-                            "идентификатор, название, описание, "
-                            "ФИО ответственного сотрудника",
+                "идентификатор, название, описание, "
+                "ФИО ответственного сотрудника",
                 required=False,
                 type=OpenApiTypes.STR,
             ),
@@ -33,26 +32,25 @@ COMPONENT_SCHEMA = extend_schema_view(
                 required=False,
                 type=OpenApiTypes.STR,
             ),
-        ]
+        ],
     ),
     retrieve=extend_schema(
         description="Получение информации о компоненте",
-        summary="Получение информации о компоненте"
+        summary="Получение информации о компоненте",
     ),
     create=extend_schema(
         description="Добавление нового компонента",
-        summary="Добавление нового компонента"
+        summary="Добавление нового компонента",
     ),
     destroy=extend_schema(
-        description="Удаление компонента",
-        summary="Удаление компонента"
+        description="Удаление компонента", summary="Удаление компонента"
     ),
     partial_update=extend_schema(
         description="Частичное изменение информации о компоненте",
-        summary="Частичное изменение информации о компоненте"
+        summary="Частичное изменение информации о компоненте",
     ),
     update=extend_schema(
         description="Изменение информации о компоненте",
-        summary="Изменение информации о компоненте"
+        summary="Изменение информации о компоненте",
     ),
 )
