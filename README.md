@@ -59,7 +59,7 @@ docker compose exec backend python manage.py migrate
 Проект будет доступен по адресу:
 
 ```
-http://localhost:8000/api/schema/swagger-ui/
+http://localhost:8000/
 ```
 
 Flower будет доступен по адресу:
