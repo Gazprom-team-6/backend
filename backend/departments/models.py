@@ -16,14 +16,14 @@ class Department(models.Model):
     departament_owner = models.ForeignKey(
         to=User,
         verbose_name="Руководитель департамента",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
     parent_department = models.ForeignKey(
         to="self",
         verbose_name="Родительский департамент",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name="children_departament",

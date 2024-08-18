@@ -16,7 +16,7 @@ class Product(models.Model):
     product_manager = models.ForeignKey(
         to=User,
         verbose_name="Менеджер продукта",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
@@ -24,7 +24,7 @@ class Product(models.Model):
     parent_product = models.ForeignKey(
         to="self",
         verbose_name="Родительский продукт",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name="children_product",

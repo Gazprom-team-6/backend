@@ -29,17 +29,6 @@ class ProductViewSet(BaseViewSet):
     ]
     filter_backends = (filters.SearchFilter,)
     search_fields = ("id", "product_name", "product_description")
-    serializer_classes = {
-        "create": ProductWriteSerializer,
-        "update": ProductWriteSerializer,
-        "partial_update": ProductWriteSerializer,
-        "children_products": ProductChildrenReadSerializer,
-        "product_teams": TeamListSerializer,
-        "retrieve": ProductGetSerializer,
-        "list": ProductListSerializer,
-        "root_products": ProductRootSerializer,
-        "product_components": ComponentReadSerializer,
-    }
 
     def get_queryset(self):
         queryset = Product.objects.all()
@@ -117,10 +106,23 @@ class ProductViewSet(BaseViewSet):
         return queryset
 
     def get_serializer_class(self):
-        return self.serializer_classes.get(
-            self.action,
-            super().get_serializer_class()
-        )
+        match self.action:
+            case "create" | "update" | "partial_update":
+                return ProductWriteSerializer
+            case "children_products":
+                return ProductChildrenReadSerializer
+            case "product_teams":
+                return TeamListSerializer
+            case "retrieve":
+                return ProductGetSerializer
+            case "list":
+                return ProductListSerializer
+            case "root_products":
+                return ProductRootSerializer
+            case "product_components":
+                return ComponentReadSerializer
+            case _:
+                return super().get_serializer_class()
 
     @CHILDREN_PRODUCTS_SCHEMA
     @action(["get"], detail=True, url_path="subsidiary")

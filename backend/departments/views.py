@@ -74,17 +74,19 @@ class DepartmentViewSet(BaseViewSet):
         return queryset
 
     def get_serializer_class(self):
-        if self.action in ("retrieve", "list"):
-            return DepartmentReadSerializer
-        elif self.action in ("children_departments", "root_departments"):
-            return DepartmentChildrenReadSerializer
-        elif self.action == "employees":
-            return DepartmentAddEmployeesSerializer
-        elif self.action == "employees_list":
-            return EmployeeShortGetSerializer
-        elif self.action in ("create", "update", "partial_update"):
-            return DepartmentWriteSerializer
-        return super().get_serializer_class()
+        match self.action:
+            case "retrieve" | "list":
+                return DepartmentReadSerializer
+            case "children_departments" | "root_departments":
+                return DepartmentChildrenReadSerializer
+            case "employees":
+                return DepartmentAddEmployeesSerializer
+            case "employees_list":
+                return EmployeeShortGetSerializer
+            case "create" | "update" | "partial_update":
+                return DepartmentWriteSerializer
+            case _:
+                return super().get_serializer_class()
 
     @EMPLOYEES_SCHEMA
     @transaction.atomic

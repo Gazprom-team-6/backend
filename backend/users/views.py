@@ -90,19 +90,21 @@ class UserViewSet(BaseViewSet):
             return (IsAuthenticated(),)
 
     def get_serializer_class(self):
-        if self.action in ("retrieve", "me"):
-            return EmployeeGetSerializer
-        elif self.action == "create":
-            return EmployeeWriteSuperuserSerializer
-        elif self.action == "partial_update":
-            if self.request.user.is_superuser:
+        match self.action:
+            case "retrieve" | "me":
+                return EmployeeGetSerializer
+            case "create":
                 return EmployeeWriteSuperuserSerializer
-            return EmployeePatchUserSerializer
-        elif self.action == "upload_avatar":
-            return AvatarUploadSerializer
-        elif self.action == "list":
-            return EmployeeListSerializer
-        return super().get_serializer_class()
+            case "partial_update":
+                if self.request.user.is_superuser:
+                    return EmployeeWriteSuperuserSerializer
+                return EmployeePatchUserSerializer
+            case "upload_avatar":
+                return AvatarUploadSerializer
+            case "list":
+                return EmployeeListSerializer
+            case _:
+                return super().get_serializer_class()
 
     @ME_SCHEMA
     @action(["get"], detail=False)

@@ -33,17 +33,6 @@ class TeamViewSet(BaseViewSet):
     ]
     filter_backends = (filters.SearchFilter,)
     search_fields = ("id", "team_name")
-    serializer_classes = {
-        "create": TeamWriteSerializer,
-        "update": TeamWriteSerializer,
-        "partial_update": TeamWriteSerializer,
-        "list": TeamListSerializer,
-        "retrieve": TeamGetSerializer,
-        "employees_list": TeamEmployeeListSerializer,
-        "add_employees": TeamAddEmployeesSerializer,
-        "remove_employees": TeamDeleteEmployeesSerializer,
-        "change_employee_role": TeamEmployeeChangeRoleSerializer,
-    }
 
     def get_queryset(self):
         queryset = Team.objects.all()
@@ -80,10 +69,23 @@ class TeamViewSet(BaseViewSet):
         return queryset
 
     def get_serializer_class(self):
-        return self.serializer_classes.get(
-            self.action,
-            super().get_serializer_class()
-        )
+        match self.action:
+            case "create" | "update" | "partial_update":
+                return TeamWriteSerializer
+            case "list":
+                return TeamListSerializer
+            case "retrieve":
+                return TeamGetSerializer
+            case "employees_list":
+                return TeamEmployeeListSerializer
+            case "add_employees":
+                return TeamAddEmployeesSerializer
+            case "remove_employees":
+                return TeamDeleteEmployeesSerializer
+            case "change_employee_role":
+                return TeamEmployeeChangeRoleSerializer
+            case _:
+                return super().get_serializer_class()
 
     @EMPLOYEES_LIST_SCHEMA
     @action(["get"], detail=True, url_path="employees_list")

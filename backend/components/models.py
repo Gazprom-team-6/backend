@@ -21,7 +21,7 @@ class Component(models.Model):
         to=User,
         verbose_name="Ответственный за компонент",
         related_name="owned_components",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
@@ -29,7 +29,7 @@ class Component(models.Model):
         to=User,
         verbose_name="Заместитель ответственного за компонент",
         related_name="second_owned_components",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )

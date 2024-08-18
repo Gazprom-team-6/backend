@@ -16,14 +16,14 @@ class Team(models.Model):
     team_manager = models.ForeignKey(
         to=User,
         verbose_name="Менеджер команды",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
     product = models.ForeignKey(
         to="products.Product",
         verbose_name="Родительский продукт",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )

@@ -99,7 +99,7 @@ class GazpromUser(AbstractUser):
     employee_departament = models.ForeignKey(
         to="departments.Department",
         verbose_name="Департамент",
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
     )

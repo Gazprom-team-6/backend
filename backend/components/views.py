@@ -50,8 +50,10 @@ class ComponentViewSet(BaseViewSet):
         return queryset
 
     def get_serializer_class(self):
-        if self.action in ("create", "update", "partial_update"):
-            return ComponentWriteSerializer
-        elif self.action in ("list", "retrieve"):
-            return ComponentReadSerializer
-        return super().get_serializer_class()
+        match self.action:
+            case "create" | "update" | "partial_update":
+                return ComponentWriteSerializer
+            case "list" | "retrieve":
+                return ComponentReadSerializer
+            case _:
+                return super().get_serializer_class()
