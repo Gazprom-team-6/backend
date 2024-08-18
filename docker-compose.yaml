@@ -2,7 +2,6 @@ volumes:
   pg_data:
   backend_static:
   media:
-  static:
 
 services:
   db:
@@ -51,7 +50,6 @@ services:
       - worker
     volumes:
       - media:/app/media
-      - static:/usr/local/lib/python3.11/site-packages/flower/static
     ports:
       - "5555:5555"
 
@@ -65,4 +63,3 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - media:/media
       - backend_static:/backend_static
-      - static:/static
