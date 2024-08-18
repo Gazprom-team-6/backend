@@ -206,4 +206,4 @@ Schema
 
 ## Авторы проекта
 
-[Beliaev Mikhail](https://github.com/tooMike)
+[Beliaev Mikhail](https://github.com/tooMike) – [Telegram](https://t.me/gusoyn)
