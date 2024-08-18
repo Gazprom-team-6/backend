@@ -15,3 +15,15 @@ ADD_METRIC_SCHEMA = extend_schema(
     description="Добавление метрики.",
     summary="Добавление метрики.",
 )
+
+GET_METRIC_SCHEMA = extend_schema(
+    responses={200: MetricSerializer(many=True)},
+    description="Получение списка метрик.",
+    summary="Получение списка метрик.",
+)
+
+GET_FIELDS_SCHEMA = extend_schema(
+    responses={200: AdditionalFieldSerializer(many=True)},
+    description="Получение списка дополнительных полей.",
+    summary="Получение списка дополнительных полей.",
+)

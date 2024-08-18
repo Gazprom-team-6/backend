@@ -1,9 +1,11 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from company.models import AdditionalField, Metric
-from company.schemas import ADD_FIELD_SCHEMA, ADD_METRIC_SCHEMA
+from company.schemas import (ADD_FIELD_SCHEMA, ADD_METRIC_SCHEMA,
+                             GET_FIELDS_SCHEMA, GET_METRIC_SCHEMA)
 from company.serializers import AdditionalFieldSerializer, MetricSerializer
 
 
@@ -11,7 +13,7 @@ class BaseViewSet(viewsets.ModelViewSet):
     """Миксин для всех сущностей с базовым набором actions"""
 
     def get_serializer_class(self):
-        if self.action == "add_field":
+        if self.action in ("add_field", "get_fields"):
             return AdditionalFieldSerializer
         else:
             return MetricSerializer
@@ -23,7 +25,7 @@ class BaseViewSet(viewsets.ModelViewSet):
             serializer_class,
             model_class
     ):
-        """Обработчик добавления дополнительных данных."""
+        """Обработчик добавлеmodel_classния дополнительных данных."""
         model_object = self.get_object()
         serializer = serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -55,6 +57,34 @@ class BaseViewSet(viewsets.ModelViewSet):
         return self.handle_additional_data(
             request, pk, serializer_class=MetricSerializer, model_class=Metric
         )
+
+    def get_additional_data(self, request, pk, model):
+        """
+        Метод для получения списка связанных метрик и дополнительных полей.
+        """
+        model_object = self.get_object()
+        # Фильтрация по связанному объекту
+        metrics = model.objects.filter(
+            content_type=ContentType.objects.get_for_model(model_object),
+            object_id=model_object.id
+        )
+        return self.get_paginated_data(request=request, queryset=metrics)
+
+    @GET_FIELDS_SCHEMA
+    @action(methods=["get"], detail=True, url_path="get_fields")
+    def get_fields(self, request, pk=None):
+        """Получение списка дополнительных полей."""
+        return self.get_additional_data(
+            request=request,
+            pk=pk,
+            model=AdditionalField
+        )
+
+    @GET_METRIC_SCHEMA
+    @action(methods=["get"], detail=True, url_path="get_metrics")
+    def get_metrics(self, request, pk=None):
+        """Получение списка метрик."""
+        return self.get_additional_data(request=request, pk=pk, model=Metric)
 
     def get_paginated_data(self, request, queryset):
         """Пагинация и сериализия queryset."""
