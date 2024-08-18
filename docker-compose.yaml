@@ -1,0 +1,65 @@
+volumes:
+  pg_data:
+  backend_static:
+  media:
+
+services:
+  db:
+    image: postgres:16.4
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.4
+
+  backend:
+    build: ./backend/
+    entrypoint: gunicorn
+    command: backend.wsgi:application --bind 0.0.0.0:8000
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - backend_static:/backend_static
+      - media:/app/media
+
+  worker:
+    build: ./backend/
+    entrypoint: celery
+    command: -A backend.celery_app.app worker --loglevel=info -E
+    env_file: .env
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - media:/app/media
+
+  flower:
+    build: ./backend/
+    entrypoint: sh -c "sleep 10 && celery -A backend.celery_app.app flower"
+    env_file: .env
+    links:
+      - redis
+      - worker
+    depends_on:
+      - redis
+      - worker
+    volumes:
+      - media:/app/media
+    ports:
+      - "5555:5555"
+
+  nginx:
+    build: ./nginx/
+    depends_on:
+      - backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - media:/media
+      - backend_static:/backend_static
