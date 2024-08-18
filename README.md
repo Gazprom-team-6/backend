@@ -34,7 +34,7 @@ git clone https://github.com/Gazprom-team-6/backend/
 cd backend
 ```
 
-Запустить сборку проекта:
+Запустить сборку проекта (для запуска необходимо добавить файл с секретами .env):
 
 ```
 docker compose up
@@ -52,10 +52,16 @@ docker compose exec backend python manage.py collectstatic
 docker compose exec backend python manage.py migrate
 ```
 
-Проект будет доступен по адресу
+Проект будет доступен по адресу:
 
 ```
-http://127.0.0.1:8000/
+http://localhost:8000/api/schema/swagger-ui/
+```
+
+Flower будет доступен по адресу:
+
+```
+http://localhost:5555
 ```
 
 ## Спецификация
@@ -129,6 +135,32 @@ Python==3.12
     0
   ],
   "employee_departament": 0
+}
+```
+
+### Получение токена
+
+* Описание метода: Получение токена пользователя.
+* Права доступа: Доступно всем пользователям.
+* Тип запроса: `POST`
+* Эндпоинт: `/api/users/auth/jwt/create/`
+* Обязательные параметры: `email, password`
+
+Пример запроса:
+
+```
+{
+  "email": "root@mail.ru",
+  "password": "root"
+}
+```
+
+Пример успешного ответа:
+
+```
+{
+  "access": "string",
+  "refresh": "string"
 }
 ```
 
