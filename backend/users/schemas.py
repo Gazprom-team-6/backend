@@ -1,20 +1,12 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
-    OpenApiExample,
-    OpenApiParameter,
-    OpenApiResponse,
-    PolymorphicProxySerializer,
-)
+from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
+                                   OpenApiResponse, PolymorphicProxySerializer,
+                                   extend_schema, extend_schema_view)
 
-from users.serializers import (
-    AvatarUploadSerializer,
-    EmployeeGetSerializer,
-    EmployeePatchUserSerializer,
-    EmployeeWriteSuperuserSerializer,
-    PasswordResetSerializer,
-)
+from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
+                               EmployeePatchUserSerializer,
+                               EmployeeWriteSuperuserSerializer,
+                               PasswordResetSerializer)
 
 GAZPROMUSER_SCHEMA = extend_schema_view(
     list=extend_schema(
@@ -54,25 +46,24 @@ GAZPROMUSER_SCHEMA = extend_schema_view(
             OpenApiParameter(
                 name="product",
                 description="Фильтр по продукту, в котором принимает участие "
-                "сотрудник",
+                            "сотрудник",
                 required=False,
                 type=OpenApiTypes.STR,
             ),
             OpenApiParameter(
                 name="search",
-                description="Поиск сотрудника по полям: "
-                "идентификатор, ФИО сотрудника, название отдела, "
-                "должность, email, грейд, название продукта, "
-                "локация (часовой пояс), название компонента, "
-                "тип занятости, название команды, "
-                "навыки, статус",
+                description="Поиск сотрудника по полям: идентификатор, "
+                            "ФИО сотрудника, название отдела, должность, "
+                            "email, грейд, название продукта, "
+                            "локация (часовой пояс), название компонента, "
+                            "тип занятости, название команды, навыки, статус",
                 required=False,
                 type=OpenApiTypes.STR,
             ),
             OpenApiParameter(
                 name="skill",
-                description="Фильтр по навыка. Могут быть переданы несколько"
-                "навыков в формате: ?skill=skill1&skill=skill2",
+                description="Фильтр по навыка. Могут быть переданы несколько "
+                            "навыков в формате: ?skill=skill1&skill=skill2",
                 required=False,
                 type=OpenApiTypes.STR,
             ),
@@ -106,7 +97,8 @@ GAZPROMUSER_SCHEMA = extend_schema_view(
         request=EmployeeWriteSuperuserSerializer,
     ),
     destroy=extend_schema(
-        description="Увольнение сотрудника. " "Статус сотрудника меняется на Уволен",
+        description="Увольнение сотрудника. "
+                    "Статус сотрудника меняется на Уволен",
         summary="Увольнение сотрудника.",
     ),
     partial_update=extend_schema(
@@ -139,9 +131,9 @@ PASSWORD_RESET_VIEW_SCHEMA = extend_schema(
         400: OpenApiTypes.OBJECT,
     },
     description="Позволяет неавторизованному пользователю восстановить "
-    "пароль, если его email зарегистрирован в системе. "
-    "Система генерирует и присылает новый пароль на "
-    "указанный email.",
+                "пароль, если его email зарегистрирован в системе. "
+                "Система генерирует и присылает новый пароль на "
+                "указанный email.",
     summary="Восстановление пароля.",
     examples=[
         OpenApiExample(
@@ -168,7 +160,8 @@ ME_SCHEMA = extend_schema(
 UPLOAD_AVATAR_SCHEMA = extend_schema(
     request=AvatarUploadSerializer,
     responses={200: AvatarUploadSerializer},
-    description="Загрузка аватара сотрудника. " "Файл должен быть  формата formdata",
+    description="Загрузка аватара сотрудника. "
+                "Файл должен быть  формата formdata",
     summary="Загрузка аватара сотрудника.",
 )
 

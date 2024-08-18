@@ -4,7 +4,8 @@ from django.db.models import Q
 
 from users.constants import EMPLOYEE_STATUS, GRADES, JOB_TYPES
 from users.manager import GazpromUserManager
-from users.validators import phone_regex, validate_birth_date, validate_hire_date
+from users.validators import (phone_regex, validate_birth_date,
+                              validate_hire_date)
 
 
 class GazpromUser(AbstractUser):
@@ -75,7 +76,11 @@ class GazpromUser(AbstractUser):
         verbose_name="Локация", max_length=300, null=True, blank=True
     )
     employee_grade = models.CharField(
-        verbose_name="Грейд", choices=GRADES, max_length=50, null=True, blank=True
+        verbose_name="Грейд",
+        choices=GRADES,
+        max_length=50,
+        null=True,
+        blank=True
     )
     employee_description = models.TextField(
         verbose_name="Биография", null=True, blank=True
@@ -153,7 +158,9 @@ class EmployeeSkill(models.Model):
     employee = models.ForeignKey(
         to=GazpromUser, verbose_name="Сотрудник", on_delete=models.CASCADE
     )
-    skill = models.ForeignKey(to=Skill, verbose_name="Навык", on_delete=models.CASCADE)
+    skill = models.ForeignKey(
+        to=Skill, verbose_name="Навык", on_delete=models.CASCADE
+    )
 
     class Meta:
         constraints = [

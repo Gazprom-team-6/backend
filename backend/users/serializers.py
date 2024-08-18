@@ -71,13 +71,23 @@ class EmployeeWriteSuperuserSerializer(serializers.ModelSerializer):
         queryset=Skill.objects.all(), many=True, required=False
     )
     employee_date_of_hire = serializers.DateField(
-        format="%d-%m-%Y", input_formats=["%d-%m-%Y", "%Y-%m-%d"], required=False
+        format="%d-%m-%Y",
+        input_formats=["%d-%m-%Y", "%Y-%m-%d"],
+        required=False
     )
     employee_date_of_birth = serializers.DateField(
-        format="%d-%m-%Y", input_formats=["%d-%m-%Y", "%Y-%m-%d"], required=False
+        format="%d-%m-%Y",
+        input_formats=["%d-%m-%Y", "%Y-%m-%d"],
+        required=False
     )
-    employee_type_job = serializers.ChoiceField(choices=JOB_TYPES, required=False)
-    employee_status = serializers.ChoiceField(choices=EMPLOYEE_STATUS, required=False)
+    employee_type_job = serializers.ChoiceField(
+        choices=JOB_TYPES,
+        required=False
+    )
+    employee_status = serializers.ChoiceField(
+        choices=EMPLOYEE_STATUS,
+        required=False
+    )
     employee_grade = serializers.ChoiceField(choices=GRADES, required=False)
     id = serializers.ReadOnlyField()
 
@@ -107,8 +117,12 @@ class EmployeeWriteSuperuserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Создание пользователя."""
         # Шифруем пароль
-        validated_data["password"] = make_password(validated_data.get("password"))
-        return super(EmployeeWriteSuperuserSerializer, self).create(validated_data)
+        validated_data["password"] = make_password(
+            validated_data.get("password")
+        )
+        return super(EmployeeWriteSuperuserSerializer, self).create(
+            validated_data
+        )
 
 
 class EmployeePatchUserSerializer(serializers.ModelSerializer):
@@ -117,7 +131,10 @@ class EmployeePatchUserSerializer(serializers.ModelSerializer):
     профиля сотрудника самим сотрудником.
     """
 
-    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
+    skills = serializers.PrimaryKeyRelatedField(
+        queryset=Skill.objects.all(),
+        many=True
+    )
     employee_status = serializers.ChoiceField(choices=EMPLOYEE_STATUS)
     id = serializers.ReadOnlyField()
     is_superuser = serializers.HiddenField

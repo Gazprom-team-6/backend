@@ -6,7 +6,8 @@ from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from components.models import Component
 from components.schemas import COMPONENT_SCHEMA
-from components.serializers import ComponentReadSerializer, ComponentWriteSerializer
+from components.serializers import (ComponentReadSerializer,
+                                    ComponentWriteSerializer)
 
 
 @COMPONENT_SCHEMA

@@ -11,21 +11,13 @@ from rest_framework.views import APIView
 from company.mixins import BaseViewSet
 from users.filters import GazpromUserFilter
 from users.permissions import IsSuperuser, IsSuperuserOrProfileOwner
-from users.schemas import (
-    DELETE_AVATAR_SCHEMA,
-    GAZPROMUSER_SCHEMA,
-    ME_SCHEMA,
-    PASSWORD_RESET_VIEW_SCHEMA,
-    UPLOAD_AVATAR_SCHEMA,
-)
-from users.serializers import (
-    AvatarUploadSerializer,
-    EmployeeGetSerializer,
-    EmployeeListSerializer,
-    EmployeePatchUserSerializer,
-    EmployeeWriteSuperuserSerializer,
-    PasswordResetSerializer,
-)
+from users.schemas import (DELETE_AVATAR_SCHEMA, GAZPROMUSER_SCHEMA, ME_SCHEMA,
+                           PASSWORD_RESET_VIEW_SCHEMA, UPLOAD_AVATAR_SCHEMA)
+from users.serializers import (AvatarUploadSerializer, EmployeeGetSerializer,
+                               EmployeeListSerializer,
+                               EmployeePatchUserSerializer,
+                               EmployeeWriteSuperuserSerializer,
+                               PasswordResetSerializer)
 from users.tasks import send_reset_password_email
 
 User = get_user_model()
@@ -52,7 +44,8 @@ class PasswordResetView(APIView):
         send_reset_password_email.delay(new_password, email)
 
         return Response(
-            {"message": "Новый пароль отправлен на email"}, status=status.HTTP_200_OK
+            {"message": "Новый пароль отправлен на email"},
+            status=status.HTTP_200_OK
         )
 
 
@@ -89,7 +82,9 @@ class UserViewSet(BaseViewSet):
             return (IsSuperuser(),)
         # Доступ к редактированию профиля, загрузке и удалению аватара
         # разрешаем только суперпользователю и владельцу профиля
-        elif self.action in ("partial_update", "upload_avatar", "delete_avatar"):
+        elif self.action in (
+                "partial_update", "upload_avatar", "delete_avatar"
+        ):
             return (IsSuperuserOrProfileOwner(),)
         else:
             return (IsAuthenticated(),)

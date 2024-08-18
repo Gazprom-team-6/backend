@@ -80,7 +80,8 @@ class ProductChildrenReadSerializer(ProductBaseSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "product_name", "product_manager", "product_description"]
+        fields = ["id", "product_name", "product_manager",
+                  "product_description"]
 
 
 class ProductShortReadSerializer(ProductBaseSerializer):

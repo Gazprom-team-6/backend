@@ -35,10 +35,13 @@ class Migration(migrations.Migration):
                 (
                     "component_link",
                     models.URLField(
-                        blank=True, null=True, verbose_name="Ссылка на документацию"
+                        blank=True,
+                        null=True,
+                        verbose_name="Ссылка на документацию"
                     ),
                 ),
-                ("component_description", models.TextField(verbose_name="Описание")),
+                ("component_description",
+                 models.TextField(verbose_name="Описание")),
             ],
             options={
                 "verbose_name": "компонент",

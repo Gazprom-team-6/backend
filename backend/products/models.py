@@ -30,7 +30,10 @@ class Product(models.Model):
         related_name="children_product",
     )
     components = models.ManyToManyField(
-        to=Component, through="ProductComponent", verbose_name="Компонент", blank=True
+        to=Component,
+        through="ProductComponent",
+        verbose_name="Компонент",
+        blank=True
     )
 
     class Meta:
@@ -73,7 +76,8 @@ class ProductComponent(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["product", "component"], name="unique_product_component"
+                fields=["product", "component"],
+                name="unique_product_component"
             )
         ]
         verbose_name = "компонент продукта"

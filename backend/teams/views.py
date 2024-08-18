@@ -11,22 +11,14 @@ from rest_framework.response import Response
 from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from teams.models import GazpromUserTeam, Team
-from teams.schemas import (
-    ADD_EMPLOYEES_SCHEMA,
-    CHANGE_EMPLOYEE_ROLE_SCHEMA,
-    EMPLOYEES_LIST_SCHEMA,
-    REMOVE_EMPLOYEES_SCHEMA,
-    TEAM_SCHEMA,
-)
-from teams.serializers import (
-    TeamAddEmployeesSerializer,
-    TeamDeleteEmployeesSerializer,
-    TeamEmployeeChangeRoleSerializer,
-    TeamEmployeeListSerializer,
-    TeamGetSerializer,
-    TeamListSerializer,
-    TeamWriteSerializer,
-)
+from teams.schemas import (ADD_EMPLOYEES_SCHEMA, CHANGE_EMPLOYEE_ROLE_SCHEMA,
+                           EMPLOYEES_LIST_SCHEMA, REMOVE_EMPLOYEES_SCHEMA,
+                           TEAM_SCHEMA)
+from teams.serializers import (TeamAddEmployeesSerializer,
+                               TeamDeleteEmployeesSerializer,
+                               TeamEmployeeChangeRoleSerializer,
+                               TeamEmployeeListSerializer, TeamGetSerializer,
+                               TeamListSerializer, TeamWriteSerializer)
 from users.models import GazpromUser
 from users.tasks import send_add_to_team_mail, send_remove_from_team_mail
 
@@ -88,7 +80,10 @@ class TeamViewSet(BaseViewSet):
             "remove_employees": TeamDeleteEmployeesSerializer,
             "change_employee_role": TeamEmployeeChangeRoleSerializer,
         }
-        return serializer_classes.get(self.action, super().get_serializer_class())
+        return serializer_classes.get(
+            self.action,
+            super().get_serializer_class()
+        )
 
     @EMPLOYEES_LIST_SCHEMA
     @action(["get"], detail=True, url_path="employees_list")
@@ -115,7 +110,10 @@ class TeamViewSet(BaseViewSet):
     def add_employees(self, request, pk=None):
         """Добавление сотрудников в команду."""
         team = self.get_object()
-        serializer = self.get_serializer(data=request.data, context={"team": team})
+        serializer = self.get_serializer(
+            data=request.data,
+            context={"team": team}
+        )
         serializer.is_valid(raise_exception=True)
         employee_ids = serializer.validated_data["employee_ids"]
         role = serializer.validated_data["role"]
@@ -140,7 +138,9 @@ class TeamViewSet(BaseViewSet):
         # Отправка уведомлений после успешного завершения транзакции
         transaction.on_commit(
             partial(
-                send_add_to_team_mail.delay, team_name=team.team_name, emails=emails
+                send_add_to_team_mail.delay,
+                team_name=team.team_name,
+                emails=emails
             )
         )
 
@@ -152,11 +152,17 @@ class TeamViewSet(BaseViewSet):
     def remove_employees(self, request, pk=None):
         """Удаление сотрудников из команды."""
         team = self.get_object()
-        serializer = self.get_serializer(data=request.data, context={"team": team})
+        serializer = self.get_serializer(
+            data=request.data,
+            context={"team": team}
+        )
         serializer.is_valid(raise_exception=True)
         employee_ids = serializer.validated_data["employee_ids"]
 
-        GazpromUserTeam.objects.filter(team=team, employee_id__in=employee_ids).delete()
+        GazpromUserTeam.objects.filter(
+            team=team,
+            employee_id__in=employee_ids
+        ).delete()
 
         # Получаем список email всех сотрудников, удаляемых из команды
         emails = list(
@@ -180,7 +186,10 @@ class TeamViewSet(BaseViewSet):
     def change_employee_role(self, request, pk=None):
         """Изменение роли пользователя в команде."""
         team = self.get_object()
-        serializer = self.get_serializer(data=request.data, context={"team": team})
+        serializer = self.get_serializer(
+            data=request.data,
+            context={"team": team}
+        )
         serializer.is_valid(raise_exception=True)
         employee = serializer.validated_data["employee"]
         role = serializer.validated_data["role"]

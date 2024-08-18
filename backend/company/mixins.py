@@ -16,7 +16,13 @@ class BaseViewSet(viewsets.ModelViewSet):
         else:
             return MetricSerializer
 
-    def handle_additional_data(self, request, pk, serializer_class, model_class):
+    def handle_additional_data(
+            self,
+            request,
+            pk,
+            serializer_class,
+            model_class
+    ):
         """Обработчик добавления дополнительных данных."""
         model_object = self.get_object()
         serializer = serializer_class(data=request.data)

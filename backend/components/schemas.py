@@ -1,5 +1,6 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from drf_spectacular.utils import (OpenApiParameter, extend_schema,
+                                   extend_schema_view)
 
 COMPONENT_SCHEMA = extend_schema_view(
     list=extend_schema(
@@ -21,8 +22,8 @@ COMPONENT_SCHEMA = extend_schema_view(
             OpenApiParameter(
                 name="search",
                 description="Поиск продукта по полям: "
-                "идентификатор, название, описание, "
-                "ФИО ответственного сотрудника",
+                            "идентификатор, название, описание, "
+                            "ФИО ответственного сотрудника",
                 required=False,
                 type=OpenApiTypes.STR,
             ),

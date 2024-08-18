@@ -9,19 +9,13 @@ from rest_framework.response import Response
 from company.mixins import BaseViewSet
 from company.permissions import IsSuperuserOrReadOnly
 from departments.models import Department
-from departments.schemas import (
-    CHILDREN_DEPARTMENTS_SCHEMA,
-    DEPARTMENT_SCHEMA,
-    EMPLOYEES_LIST_SCHEMA,
-    EMPLOYEES_SCHEMA,
-    ROOT_DEPARTMENTS_SCHEMA,
-)
-from departments.serializers import (
-    DepartmentAddEmployeesSerializer,
-    DepartmentChildrenReadSerializer,
-    DepartmentReadSerializer,
-    DepartmentWriteSerializer,
-)
+from departments.schemas import (CHILDREN_DEPARTMENTS_SCHEMA,
+                                 DEPARTMENT_SCHEMA, EMPLOYEES_LIST_SCHEMA,
+                                 EMPLOYEES_SCHEMA, ROOT_DEPARTMENTS_SCHEMA)
+from departments.serializers import (DepartmentAddEmployeesSerializer,
+                                     DepartmentChildrenReadSerializer,
+                                     DepartmentReadSerializer,
+                                     DepartmentWriteSerializer)
 from users.serializers import EmployeeShortGetSerializer
 
 User = get_user_model()
@@ -43,7 +37,10 @@ class DepartmentViewSet(BaseViewSet):
         queryset = Department.objects.all()
         if self.action in ("retrieve", "list"):
             queryset = (
-                queryset.select_related("departament_owner", "parent_department")
+                queryset.select_related(
+                    "departament_owner",
+                    "parent_department"
+                )
                 .only(
                     "id",
                     "departament_name",

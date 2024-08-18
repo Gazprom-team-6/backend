@@ -28,7 +28,8 @@ class DepartmentWriteSerializer(DepartmentBaseSerializer):
         """
         if self.instance and value == self.instance:
             raise serializers.ValidationError(
-                "Нельзя назначить родительским " "департаментом сам департамент."
+                "Нельзя назначить родительским "
+                "департаментом сам департамент."
             )
         return value
 

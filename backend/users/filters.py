@@ -27,9 +27,13 @@ class GazpromUserFilter(django_filters.FilterSet):
         to_field_name="name",
         queryset=Skill.objects.all(),
     )
-    is_outsource = django_filters.BooleanFilter(field_name="is_employee_outsource")
+    is_outsource = django_filters.BooleanFilter(
+        field_name="is_employee_outsource"
+    )
     location = django_filters.CharFilter(field_name="employee_location")
-    team = django_filters.CharFilter(field_name="gazpromuserteam__team__team_name")
+    team = django_filters.CharFilter(
+        field_name="gazpromuserteam__team__team_name"
+    )
     product = django_filters.CharFilter(
         field_name="gazpromuserteam__team__product__product_name"
     )

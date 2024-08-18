@@ -8,7 +8,11 @@ User = get_user_model()
 class Team(models.Model):
     """Модель команды."""
 
-    team_name = models.CharField(max_length=250, verbose_name="Название", unique=True)
+    team_name = models.CharField(
+        max_length=250,
+        verbose_name="Название",
+        unique=True
+    )
     team_manager = models.ForeignKey(
         to=User,
         verbose_name="Менеджер команды",
@@ -43,7 +47,9 @@ class Team(models.Model):
             # Проверяем, если уже есть запись для этого менеджера в этой
             # команде
             gazprom_user_team, created = GazpromUserTeam.objects.get_or_create(
-                employee=self.team_manager, team=self, defaults={"role": "Руководитель"}
+                employee=self.team_manager,
+                team=self,
+                defaults={"role": "Руководитель"}
             )
             if not created:
                 # Если запись существует, обновляем роль
@@ -62,7 +68,10 @@ class GazpromUserTeam(models.Model):
         verbose_name="Команда",
         on_delete=models.CASCADE,
     )
-    role = models.CharField(verbose_name="Роль сотрудника в команде", max_length=100)
+    role = models.CharField(
+        verbose_name="Роль сотрудника в команде",
+        max_length=100
+    )
 
     class Meta:
         verbose_name = "роль сотрудника в команде"
@@ -70,9 +79,11 @@ class GazpromUserTeam(models.Model):
         default_related_name = "gazpromuserteam"
         constraints = [
             models.UniqueConstraint(
-                fields=["employee", "team"], name="one_employee_role_in_one_team"
+                fields=["employee", "team"],
+                name="one_employee_role_in_one_team"
             )
         ]
 
     def __str__(self):
-        return f"{self.team.team_name} – {self.employee.employee_fio} – " f"{self.role}"
+        return f"{self.team.team_name} – {self.employee.employee_fio} – " \
+               f"{self.role}"

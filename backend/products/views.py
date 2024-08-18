@@ -8,20 +8,13 @@ from company.permissions import IsSuperuserOrReadOnly
 from components.models import Component
 from components.serializers import ComponentReadSerializer
 from products.models import Product
-from products.schemas import (
-    CHILDREN_PRODUCTS_SCHEMA,
-    PRODUCT_COMPONENTS_SCHEMA,
-    PRODUCT_SCHEMA,
-    PRODUCT_TEAMS_SCHEMA,
-    ROOT_PRODUCTS_SCHEMA,
-)
-from products.serializers import (
-    ProductChildrenReadSerializer,
-    ProductGetSerializer,
-    ProductListSerializer,
-    ProductRootSerializer,
-    ProductWriteSerializer,
-)
+from products.schemas import (CHILDREN_PRODUCTS_SCHEMA,
+                              PRODUCT_COMPONENTS_SCHEMA, PRODUCT_SCHEMA,
+                              PRODUCT_TEAMS_SCHEMA, ROOT_PRODUCTS_SCHEMA)
+from products.serializers import (ProductChildrenReadSerializer,
+                                  ProductGetSerializer, ProductListSerializer,
+                                  ProductRootSerializer,
+                                  ProductWriteSerializer)
 from teams.models import Team
 from teams.serializers import TeamListSerializer
 
@@ -45,7 +38,9 @@ class ProductViewSet(BaseViewSet):
             ).prefetch_related(
                 Prefetch(
                     "components",
-                    queryset=Component.objects.all().only("id", "component_name"),
+                    queryset=Component.objects.all().only(
+                        "id", "component_name"
+                    ),
                 )
             )
             if self.action == "retrieve":
@@ -103,7 +98,9 @@ class ProductViewSet(BaseViewSet):
                 queryset = queryset.prefetch_related(
                     Prefetch(
                         "components",
-                        queryset=Component.objects.all().only("id", "component_name"),
+                        queryset=Component.objects.all().only(
+                            "id", "component_name"
+                        ),
                     )
                 )
         return queryset

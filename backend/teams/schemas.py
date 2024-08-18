@@ -1,17 +1,11 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
-    OpenApiParameter,
-    OpenApiResponse,
-)
+from drf_spectacular.utils import (OpenApiParameter, OpenApiResponse,
+                                   extend_schema, extend_schema_view)
 
-from teams.serializers import (
-    TeamAddEmployeesSerializer,
-    TeamDeleteEmployeesSerializer,
-    TeamEmployeeChangeRoleSerializer,
-    TeamEmployeeListSerializer,
-)
+from teams.serializers import (TeamAddEmployeesSerializer,
+                               TeamDeleteEmployeesSerializer,
+                               TeamEmployeeChangeRoleSerializer,
+                               TeamEmployeeListSerializer)
 
 TEAM_SCHEMA = extend_schema_view(
     list=extend_schema(
@@ -32,7 +26,8 @@ TEAM_SCHEMA = extend_schema_view(
             ),
             OpenApiParameter(
                 name="search",
-                description="Поиск команд по полям: " "идентификатор, название",
+                description="Поиск команд по полям: "
+                            "идентификатор, название",
                 required=False,
                 type=OpenApiTypes.STR,
             ),
@@ -43,9 +38,13 @@ TEAM_SCHEMA = extend_schema_view(
         summary="Получение информации о команде и о числе сотрудников",
     ),
     create=extend_schema(
-        description="Добавление новой команды", summary="Добавление новой команды"
+        description="Добавление новой команды",
+        summary="Добавление новой команды"
     ),
-    destroy=extend_schema(description="Удаление команды", summary="Удаление команды"),
+    destroy=extend_schema(
+        description="Удаление команды",
+        summary="Удаление команды"
+    ),
     partial_update=extend_schema(
         description="Частичное изменение информации о команде",
         summary="Частичное изменение информации о команде",

@@ -32,7 +32,8 @@ class TeamListSerializer(TeamBaseSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "team_name", "team_manager", "product", "employee_count"]
+        fields = ["id", "team_name", "team_manager", "product",
+                  "employee_count"]
 
 
 class TeamGetSerializer(TeamBaseSerializer):
@@ -44,7 +45,8 @@ class TeamGetSerializer(TeamBaseSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "team_name", "team_manager", "product", "employee_count"]
+        fields = ["id", "team_name", "team_manager", "product",
+                  "employee_count"]
 
 
 class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
@@ -72,7 +74,8 @@ class TeamAddEmployeesSerializer(AddEmployeesBaseSerializer):
         # сотрудников
         if already_in_team:
             raise serializers.ValidationError(
-                f"Следующие сотрудники уже в команде: " f"{', '.join(already_in_team)}"
+                f"Следующие сотрудники уже в команде: " f""
+                f"{', '.join(already_in_team)}"
             )
 
         return attrs

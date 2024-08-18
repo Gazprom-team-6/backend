@@ -1,15 +1,9 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (
-    extend_schema,
-    extend_schema_view,
-    OpenApiParameter,
-    OpenApiResponse,
-)
+from drf_spectacular.utils import (OpenApiParameter, OpenApiResponse,
+                                   extend_schema, extend_schema_view)
 
-from departments.serializers import (
-    DepartmentAddEmployeesSerializer,
-    DepartmentChildrenReadSerializer,
-)
+from departments.serializers import (DepartmentAddEmployeesSerializer,
+                                     DepartmentChildrenReadSerializer)
 from users.serializers import EmployeeShortGetSerializer
 
 DEPARTMENT_SCHEMA = extend_schema_view(
@@ -32,7 +26,7 @@ DEPARTMENT_SCHEMA = extend_schema_view(
             OpenApiParameter(
                 name="search",
                 description="Поиск департамента по полям: "
-                "идентификатор, название, описание",
+                            "идентификатор, название, описание",
                 required=False,
                 type=OpenApiTypes.STR,
             ),
@@ -102,6 +96,6 @@ ROOT_DEPARTMENTS_SCHEMA = extend_schema(
         ),
     },
     description="Получение списка департаментов, "
-    "не имеющих родительских департаментов.",
+                "не имеющих родительских департаментов.",
     summary="Получение списка корневых департаментов.",
 )
